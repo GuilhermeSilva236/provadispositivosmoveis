@@ -1,175 +1,161 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { Button, Card, Dialog, FAB, Portal, Text } from 'react-native-paper';
 import Toast from 'react-native-toast-message';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors } from '../../renderizacao';
 
 export default function ListaInscrevaAsyncStorage({ navigation, route }) {
-    const [Inscricaos, setInscricaos] = useState([]);
-    const [showModalExcluirInscricao, setShowModalExcluirInscricao] = useState(false);
-    const [InscricaoASerExcluido, setInscricaoASerExcluido] = useState(null);
+  const [usuarios, setUsuarios] = useState([]);
+  const [showModalExcluirUsuario, setShowModalExcluirUsuario] = useState(false);
+  const [usuarioASerExcluido, setUsuarioASerExcluido] = useState(null);
 
-    useEffect(() => {
-        loadInscricaos();
-    }, []);
+  useEffect(() => {
+    loadUsuarios();
+  }, []);
 
-    async function loadInscricaos() {
-        const response = await AsyncStorage.getItem('Inscricaos');
-        const InscricaosStorage = response ? JSON.parse(response) : [];
-        setInscricaos(InscricaosStorage);
-    }
+  async function loadUsuarios() {
+    const response = await AsyncStorage.getItem('usuarios');
+    console.log("🚀 ~ file: ListaInscrevaAsyncStorage.js:21 ~ loadUsuarios ~ response:", response);
+    const usuariosStorage = response ? JSON.parse(response) : [];
+    setUsuarios(usuariosStorage);
+  }
 
-    const showModal = () => setShowModalExcluirInscricao(true);
+  const showModal = () => setShowModalExcluirUsuario(true);
 
-    const hideModal = () => setShowModalExcluirInscricao(false);
+  const hideModal = () => setShowModalExcluirUsuario(false);
 
-    async function adicionarInscricao(Inscricao) {
-        let novaListaInscricaos = Inscricaos;
-        novaListaInscricaos.push(Inscricao);
-        await AsyncStorage.setItem('Inscricaos', JSON.stringify(novaListaInscricaos));
-        setInscricaos(novaListaInscricaos);
-    }
+  async function adicionarUsuario(usuario) {
+    let novaListaUsuarios = usuarios;
+    novaListaUsuarios.push(usuario);
+    await AsyncStorage.setItem('usuarios', JSON.stringify(novaListaUsuarios));
+    setUsuarios(novaListaUsuarios);
+  }
 
-    async function editarInscricao(InscricaoAntigo, novosDados) {
-        const novaListaInscricaos = Inscricaos.map(Inscricao => {
-            if (Inscricao === InscricaoAntigo) {
-                return novosDados;
-            } else {
-                return Inscricao;
-            }
-        });
+  async function editarUsuario(usuarioAntigo, novosDados) {
+    console.log('USUÁRIO ANTIGO -> ', usuarioAntigo);
+    console.log('DADOS NOVOS -> ', novosDados);
 
-        await AsyncStorage.setItem('Inscricaos', JSON.stringify(novaListaInscricaos));
-        setInscricaos(novaListaInscricaos);
-    }
+    const novaListaUsuarios = usuarios.map((usuario) => {
+      if (usuario === usuarioAntigo) {
+        return novosDados;
+      } else {
+        return usuario;
+      }
+    });
 
-    async function excluirInscricao(Inscricao) {
-        const novaListaInscricaos = Inscricaos.filter(a => a !== Inscricao);
-        await AsyncStorage.setItem('Inscricaos', JSON.stringify(novaListaInscricaos));
-        setInscricaos(novaListaInscricaos);
-        Toast.show({
-            type: 'success',
-            text1: 'Inscricao excluído com sucesso!'
-        });
-    }
+    await AsyncStorage.setItem('usuarios', JSON.stringify(novaListaUsuarios));
+    setUsuarios(novaListaUsuarios);
+  }
 
-    function handleExcluirInscricao() {
-        excluirInscricao(InscricaoASerExcluido);
-        setInscricaoASerExcluido(null);
-        hideModal();
-    }
+  async function excluirUsuario(usuario) {
+    const novaListaUsuarios = usuarios.filter((u) => u !== usuario);
+    await AsyncStorage.setItem('usuarios', JSON.stringify(novaListaUsuarios));
+    setUsuarios(novaListaUsuarios);
+    Toast.show({
+      type: 'success',
+      text1: 'Usuário excluído com sucesso!',
+    });
+  }
 
-    return (
-        <View style={styles.container}>
+  function handleExcluirUsuario() {
+    excluirUsuario(usuarioASerExcluido);
+    setUsuarioASerExcluido(null);
+    hideModal();
+  }
 
-            <Text variant='titleLarge' style={styles.title}>Lista de Inscrição</Text>
+  return (
+    <View style={styles.container}>
+      <Text variant='titleLarge' style={styles.title}>
+        Lista de Usuários
+      </Text>
 
-            <FlatList
-                style={styles.list}
-                data={Inscricaos}
-                renderItem={({ item }) => (
-                    <Card
-                        mode='outlined'
-                        style={styles.card}
-                    >
-                        <Card.Content
-                            style={styles.cardContent}
-                        >
-                            <View style={styles.infoContainer}>
-                                <Text variant='titleMedium' style={{ color: Colors.DEFAULT_WHITE }}>Nome: {item?.nome}</Text>
-                                <Text variant='bodyLarge' style={{ color: Colors.DEFAULT_WHITE }}>Telefone: {item?.telefone}</Text>
-                                <Text variant='bodyLarge' style={{ color: Colors.DEFAULT_WHITE }}>Email: {item?.email}</Text>
-                                <Text variant='bodyLarge' style={{ color: Colors.DEFAULT_WHITE }}>Senha: {item?.senha}</Text>
-                            </View>
-                        </Card.Content>
-                        <Card.Actions>
-                            <Button
-                                onPress={() => navigation.push('FormInscrevaAsyncStorage', { acao: editarInscricao, Inscricao: item })}
-                                style={{ backgroundColor: Colors.DARK_ONE }}
-                                labelStyle={{ color: Colors.DEFAULT_WHITE }}
-                            >
-                                Editar
-                            </Button>
-                            <Button
-                                onPress={() => {
-                                    setInscricaoASerExcluido(item);
-                                    showModal();
-                                }}
-                                style={{ backgroundColor: Colors.DARK_ONE }}
-                                labelStyle={{ color: Colors.DEFAULT_WHITE }}
-                            >
-                                Excluir
-                            </Button>
-                        </Card.Actions>
-                    </Card>
-                )}
-            />
-
-            {/* Botão Flutuante */}
-            <FAB
-                label="Increva-se"
-                style={{ ...styles.fab, backgroundColor: Colors.DARK_FOUR }}
-                onPress={() => navigation.push('FormInscrevaAsyncStorage', { acao: adicionarInscricao })}
-                labelStyle={{
-                    color: Colors.DEFAULT_WHITE
+      <FlatList
+        style={styles.list}
+        data={usuarios}
+        renderItem={({ item }) => (
+          <Card mode='outlined' style={styles.card}>
+            <Card.Content style={styles.cardContent}>
+              <View style={{ flex: 1 }}>
+                <Text colorvariant='titleMedium' style={{ color: Colors.DEFAULT_WHITE}}>{item?.nome}</Text>
+                <Text variant='bodyLarge' style={{ color: Colors.DEFAULT_WHITE }}>CPF: {item?.Cpf}</Text>
+                <Text variant='bodyLarge' style={{ color: Colors.DEFAULT_WHITE }}>E-mail: {item?.Email} </Text>
+                <Text variant='bodyLarge' style={{ color: Colors.DEFAULT_WHITE }}>Senha: {item.Senha} </Text>
+                <Text variant='bodyLarge' style={{ color: Colors.DEFAULT_WHITE }}>Telefone: {item.Telefone} </Text>
+              </View>
+            </Card.Content>
+            <Card.Actions>
+              <Button onPress={() => navigation.push('FormInscrevaAsyncStorage', { acao: editarUsuario, inscricao: item })}  labelStyle={{ color: Colors.DARK_ONE }}>
+                Editar
+              </Button>
+              <Button
+                onPress={() => {
+                  setUsuarioASerExcluido(item);
+                  showModal();
                 }}
-                color={Colors.DEFAULT_WHITE}  // Adicionando a cor quando pressionado
-            />
-            {/* Modal Excluir Inscricao */}
-            <Portal>
-                <Dialog visible={showModalExcluirInscricao} onDismiss={hideModal}>
-                    <Dialog.Title>Atenção!</Dialog.Title>
-                    <Dialog.Content>
-                        <Text variant="bodyMedium">Tem certeza que deseja excluir este Inscricao?</Text>
-                    </Dialog.Content>
-                    <Dialog.Actions>
-                        <Button onPress={hideModal} style={{ color: Colors.DEFAULT_BLACK }}>Voltar</Button>
-                        <Button onPress={handleExcluirInscricao} color={Colors.DEFAULT_BLACK}>Tenho Certeza</Button>
-                    </Dialog.Actions>
-                </Dialog>
-            </Portal>
-        </View>
-    )
+                style={{ backgroundColor: Colors.DARK_ONE }}
+              >
+                Excluir
+              </Button>
+            </Card.Actions>
+          </Card>
+        )}
+      />
+
+      {/* Botão Flutuante */}
+      <FAB
+        icon='plus'
+        style={styles.fab}
+        color="white"
+        onPress={() => navigation.push('FormInscrevaAsyncStorage', { acao: adicionarUsuario })}
+      />
+
+      {/* Modal Excluir Usuário */}
+      <Portal>
+        <Dialog visible={showModalExcluirUsuario} onDismiss={hideModal}>
+          <Dialog.Title>Atenção!</Dialog.Title>
+          <Dialog.Content>
+            <Text variant='bodyMedium' style={{ color: Colors.WHITE }}>Tem certeza que deseja excluir este usuário?</Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={hideModal} style={{ color: Colors.WHITE }} labelStyle={{ color: 'black' }} >Voltar</Button>
+            <Button onPress={handleExcluirUsuario} style={{ color: Colors.WHITE }} labelStyle={{ color: 'black' }}>Tenho Certeza</Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: Colors.DARK_ONE, // Adicionando o fundo preto
-    },
-    title: {
-        fontWeight: 'bold',
-        margin: 10,
-        marginTop: 30,
-        color: Colors.DEFAULT_WHITE
-    },
-    fab: {
-        position: 'absolute',
-        margin: 16,
-        right: 0,
-        bottom: 0,
-    },
-    list: {
-        width: '90%',
-    },
-    card: {
-        marginTop: 15,
-        borderColor: Colors.DARK_ONE
-    },
-    cardContent: {
-        flexDirection: 'row',
-        borderWidth: 2,
-        borderTopLeftRadius: 10,
-        borderTopRightRadius: 10,
-        paddingBottom: 15,
-        backgroundColor: 'black',
-    },
-    infoContainer: {
-        flex: 1,
-        padding: 10,
-        borderRadius: 10,
-    },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  title: {
+    fontWeight: 'bold',
+    margin: 10,
+  },
+  fab: {
+    position: 'absolute',
+    margin: 16,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'black',
+  },
+  list: {
+    width: '90%',
+  },
+  card: {
+    marginTop: 15,
+  },
+  cardContent: {
+    flexDirection: 'row',
+    backgroundColor: Colors.DARK_ONE,
+    borderWidth: 2,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    paddingBottom: 15,
+  },
 });
