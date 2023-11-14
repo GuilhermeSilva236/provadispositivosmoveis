@@ -7,7 +7,7 @@ import ListaInscrevaAsyncStorage from './ListaInscrevaAsyncStorage.js'
 
 const Stack = createStackNavigator()
 
-export default function StackAlunosAsyncStorage() {
+export default function StackInscrevaAsyncStorage() {
     return (
         <Stack.Navigator
             screenOptions={{ headerShown: false }}

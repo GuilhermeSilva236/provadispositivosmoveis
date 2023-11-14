@@ -10,15 +10,15 @@ const HomeScreen = ({ navigation }) => {
     const carouselImages = [
         {
             id: 1,
-            image: require('../../../assets/images/img1.png'), // Substitua pelo caminho da imagem do carrossel
+            image: require('../../../assets/images/carrosel1.png'), // Substitua pelo caminho da imagem do carrossel
         },
         {
             id: 2,
-            image: require('../../../assets/images/1.png'), // Substitua pelo caminho da imagem do carrossel
+            image: require('../../../assets/images/img1.png'), // Substitua pelo caminho da imagem do carrossel
         },
         {
             id: 3,
-            image: require('../../../assets/images/1.png'), // Substitua pelo caminho da imagem do carrossel
+            image: require('../../../assets/images/img1.png'), // Substitua pelo caminho da imagem do carrossel
         },
         
         // Adicione mais objetos conforme necessário
@@ -36,25 +36,25 @@ const HomeScreen = ({ navigation }) => {
             id: 2,
             image: require('../../../assets/images/passageiro.png'), // Substitua pelo caminho da imagem do quadrado 2
             text: 'Seja um de Nossos Condutores',
-            screen:''
+            screen:'Condutores'
         },
         {
             id: 3,
-            image: require('../../../assets/images/passageiro.png'), // Substitua pelo caminho da imagem do quadrado 3
+            image: require('../../../assets/images/carror.png'), // Substitua pelo caminho da imagem do quadrado 3
             text: 'Cadastre seu Veículo',
-            screen:''
+            screen:'Veiculos'
         },
         {
             id: 4,
-            image: require('../../../assets/images/passageiro.png'), // Substitua pelo caminho da imagem do quadrado 4
+            image: require('../../../assets/images/pagamento.png'), // Substitua pelo caminho da imagem do quadrado 4
             text: 'Efetue o Pagamento da Corrida',
-            screen:''
+            screen:'Pagamento'
         },
         {
             id: 5,
-            image: require('../../../assets/images/passageiro.png'), // Substitua pelo caminho da imagem do quadrado 5
+            image: require('../../../assets/images/loc.png'), // Substitua pelo caminho da imagem do quadrado 5
             text: 'Adicione a Localização',
-            screen:''
+            screen:'Localização'
         },
         // Adicione mais objetos conforme necessário
     ];
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
         width: 70,
         height: 70,
         marginLeft: 120,
-        marginBottom: -15,
+        marginBottom: -25,
     },
     whiteText: {
         color: 'white',

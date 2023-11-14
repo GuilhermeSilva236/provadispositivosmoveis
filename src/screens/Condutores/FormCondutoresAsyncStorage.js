@@ -4,7 +4,7 @@ import { Button, Text, TextInput } from 'react-native-paper';
 import Toast from 'react-native-toast-message';
 import { Colors } from '../../renderizacao';
 
-export default function FormInscrevaAsyncStorage({ navigation, route }) {
+export default function FormCondutoresAsyncStorage({ navigation, route }) {
   const { acao, inscricao: inscricaoAntiga } = route.params;
 
   const [nome, setNome] = useState('');
@@ -42,12 +42,12 @@ export default function FormInscrevaAsyncStorage({ navigation, route }) {
       };
 
       const objetoEmString = JSON.stringify(novaInscricao);
-      console.log("🚀 ~ file: FormInscrevaAsyncStorage.js:51 ~ salvar ~ objetoEmString:", objetoEmString);
+      console.log("🚀 ~ file: FormCondutoresAsyncStorage.js:51 ~ salvar ~ objetoEmString:", objetoEmString);
 
       console.log(typeof objetoEmString);
 
       const objeto = JSON.parse(objetoEmString);
-      console.log("🚀 ~ file: FormInscrevaAsyncStorage.js:56 ~ salvar ~ objeto:", objeto);
+      console.log("🚀 ~ file: FormCondutoresAsyncStorage.js:56 ~ salvar ~ objeto:", objeto);
 
       console.log(typeof objeto);
 

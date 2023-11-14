@@ -4,62 +4,70 @@ import { Button, Text, TextInput } from 'react-native-paper';
 import Toast from 'react-native-toast-message';
 import { Colors } from '../../renderizacao';
 
-export default function FormInscrevaAsyncStorage({ navigation, route }) {
-  const { acao, inscricao: inscricaoAntiga } = route.params;
+export default function FormPagamentoAsyncStorage({ navigation, route }) {
+  const { acao, pagamento: pagamentoAntigo } = route.params;
 
   const [nome, setNome] = useState('');
   const [Cpf, setCpf] = useState('');
   const [Email, setEmail] = useState('');
   const [Senha, setSenha] = useState('');
   const [Telefone, setTelefone] = useState('');
+  const [numeroCartao, setNumeroCartao] = useState('');
+  const [dataValidade, setDataValidade] = useState('');
+  const [cvv, setCVV] = useState('');
 
   const [showMensagemErro, setShowMensagemErro] = useState(false);
 
   useEffect(() => {
-    console.log('inscricao -> ', inscricaoAntiga);
+    console.log('pagamento -> ', pagamentoAntigo);
 
-    if (inscricaoAntiga) {
-      setNome(inscricaoAntiga.nome);
-      setCpf(inscricaoAntiga.Cpf);
-      setEmail(inscricaoAntiga.Email);
-      setSenha(inscricaoAntiga.Senha);
-      setTelefone(inscricaoAntiga.Telefone);
+    if (pagamentoAntigo) {
+      setNome(pagamentoAntigo.nome);
+      setCpf(pagamentoAntigo.Cpf);
+      setEmail(pagamentoAntigo.Email);
+      setSenha(pagamentoAntigo.Senha);
+      setTelefone(pagamentoAntigo.Telefone);
+      setNumeroCartao(pagamentoAntigo.numeroCartao || '');
+      setDataValidade(pagamentoAntigo.dataValidade || '');
+      setCVV(pagamentoAntigo.cvv || '');
     }
   }, []);
 
   function salvar() {
-    if (nome === '' || Cpf === '' || Email === '' || Senha === ''|| Telefone === '') {
+    if (
+      nome === '' ||
+      Cpf === '' ||
+      Email === '' ||
+      Senha === '' ||
+      Telefone === '' ||
+      numeroCartao === '' ||
+      dataValidade === '' ||
+      cvv === ''
+    ) {
       setShowMensagemErro(true);
     } else {
       setShowMensagemErro(false);
 
-      const novaInscricao = {
-        nome: nome,
-        Cpf: Cpf,
-        Email: Email,
-        Senha: Senha,
-        Telefone: Telefone,
+      const novoPagamento = {
+        nome,
+        Cpf,
+        Email,
+        Senha,
+        Telefone,
+        numeroCartao,
+        dataValidade,
+        cvv,
       };
 
-      const objetoEmString = JSON.stringify(novaInscricao);
-      console.log("🚀 ~ file: FormInscrevaAsyncStorage.js:51 ~ salvar ~ objetoEmString:", objetoEmString);
-
-      console.log(typeof objetoEmString);
-
-      const objeto = JSON.parse(objetoEmString);
-      console.log("🚀 ~ file: FormInscrevaAsyncStorage.js:56 ~ salvar ~ objeto:", objeto);
-
-      console.log(typeof objeto);
-
-      if (inscricaoAntiga) {
-        acao(inscricaoAntiga, novaInscricao);
+      if (pagamentoAntigo) {
+        acao(pagamentoAntigo, novoPagamento);
       } else {
-        acao(novaInscricao);
+        acao(novoPagamento);
       }
 
       Toast.show({
         type: 'success',
-        text1: 'Inscrição salva com sucesso!',
+        text1: 'Pagamento salvo com sucesso!',
       });
 
       navigation.goBack();
@@ -69,7 +77,7 @@ export default function FormInscrevaAsyncStorage({ navigation, route }) {
   return (
     <View style={styles.container}>
       <Text variant="titleLarge" style={styles.title}>
-        {inscricaoAntiga ? 'Editar Inscrição' : 'Adicionar Inscrição'}
+        {pagamentoAntigo ? 'Editar Pagamento' : 'Adicionar Pagamento'}
       </Text>
 
       <View style={styles.inputContainer}>
@@ -83,46 +91,37 @@ export default function FormInscrevaAsyncStorage({ navigation, route }) {
           theme={{ colors: { primary: 'black', underlineColor: 'transparent' } }}
         />
 
+        {/* ... Outros campos existentes ... */}
+
         <TextInput
           style={{ ...styles.input, underlineColor: 'black' }}
-          label={'CPF'}
+          label={'Número do Cartão'}
           mode='outlined'
           keyboardType='numeric'
-          value={Cpf}
-          onChangeText={(text) => setCpf(text)}
+          value={numeroCartao}
+          onChangeText={(text) => setNumeroCartao(text)}
           onFocus={() => setShowMensagemErro(false)}
           theme={{ colors: { primary: 'black', underlineColor: 'transparent' } }}
         />
 
         <TextInput
           style={{ ...styles.input, underlineColor: 'black' }}
-          label={'Email'}
+          label={'Data de Validade'}
           mode='outlined'
           keyboardType='numeric'
-          value={Email}
-          onChangeText={(text) => setEmail(text)}
+          value={dataValidade}
+          onChangeText={(text) => setDataValidade(text)}
           onFocus={() => setShowMensagemErro(false)}
           theme={{ colors: { primary: 'black', underlineColor: 'transparent' } }}
         />
 
         <TextInput
           style={{ ...styles.input, underlineColor: 'black' }}
-          label={'Senha'}
+          label={'CVV'}
           mode='outlined'
           keyboardType='numeric'
-          value={Senha}
-          onChangeText={(text) => setSenha(text)}
-          onFocus={() => setShowMensagemErro(false)}
-          theme={{ colors: { primary: 'black', underlineColor: 'transparent' } }}
-        />
-
-        <TextInput
-          style={{ ...styles.input, underlineColor: 'black' }}
-          label={'Telefone'}
-          mode='outlined'
-          keyboardType='numeric'
-          value={Telefone}
-          onChangeText={(text) => setTelefone(text)}
+          value={cvv}
+          onChangeText={(text) => setCVV(text)}
           onFocus={() => setShowMensagemErro(false)}
           theme={{ colors: { primary: 'black', underlineColor: 'transparent' } }}
         />
