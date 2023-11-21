@@ -5,7 +5,7 @@ import StackInscrevaAsyncStorage from '../screens/Inscreva/StackInscrevaAsyncSto
 import StackcondutoresAsyncStorage from '../screens/Condutores/StackCondutoresAsyncStorage'
 import StackVeiculosAsyncStorage from '../screens/Veiculo/StackVeiculoAsyncStorage'
 import StackPagamentoAsyncStorage from '../screens/Pagamento/StackPagamentoAsyncStorage'
-import StackLocalizacaoAsyncStorage from '../screens/Localizacao/StackLocalizacaoAsyncStorage'
+import StackFeedbackAsyncStorage from '../screens/Feedback/StackFeedbackAsyncStorage'
 
 const Drawer = createDrawerNavigator()
 
@@ -18,7 +18,7 @@ export default function DrawerRoutes() {
             <Drawer.Screen name="Condutores" component={StackcondutoresAsyncStorage} />
             <Drawer.Screen name="Veiculos" component={StackVeiculosAsyncStorage} />
             <Drawer.Screen name="Pagamento" component={StackPagamentoAsyncStorage} />
-            <Drawer.Screen name="Localização" component={StackLocalizacaoAsyncStorage} />
+            <Drawer.Screen name="Feedback" component={StackFeedbackAsyncStorage} />
 
             
         </Drawer.Navigator>

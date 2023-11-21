@@ -41,8 +41,8 @@ export default function ListaPagamentoAsyncStorage({ navigation, route }) {
     setPagamento(novaListaPagamento);
   }
 
-  async function excluirPagamento(pagamento) {
-    const novaListaPagamento = pagamento.filter((u) => u !== pagamento);
+  async function excluirPagamento(pagamentoASerExcluido) {
+    const novaListaPagamento = pagamento.filter((u) => u !== pagamentoASerExcluido);
     await AsyncStorage.setItem('pagamento', JSON.stringify(novaListaPagamento));
     setPagamento(novaListaPagamento);
     Toast.show({

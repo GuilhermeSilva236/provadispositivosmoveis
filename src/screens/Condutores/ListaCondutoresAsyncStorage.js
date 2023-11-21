@@ -6,62 +6,62 @@ import Toast from 'react-native-toast-message';
 import { Colors } from '../../renderizacao';
 
 export default function ListaCondutoresAsyncStorage({ navigation, route }) {
-  const [condutores, setCondutores] = useState([]);
-  const [showModalExcluirCondutores, setShowModalExcluirCondutores] = useState(false);
-  const [condutorASerExcluido, setCondutorASerExcluido] = useState(null);
+  const [condutores, setcondutores] = useState([]);
+  const [showModalExcluircondutor, setShowModalExcluircondutor] = useState(false);
+  const [condutorASerExcluida, setcondutorASerExcluida] = useState(null);
 
   useEffect(() => {
-    carregarCondutores();
+    loadcondutores();
   }, []);
 
-  async function carregarCondutores() {
-    const resposta = await AsyncStorage.getItem('condutores');
-    console.log("🚀 ~ file: ListaCondutoresAsyncStorage.js:21 ~ loadCondutores ~ response:", resposta);
-    const condutoresArmazenados = resposta ? JSON.parse(resposta) : [];
-    setCondutores(condutoresArmazenados);
+  async function loadcondutores() {
+    const response = await AsyncStorage.getItem('condutores');
+    console.log("🚀 ~ file: ListaCondutoresAsyncStorage.js:21 ~ loadcondutores ~ response:", response);
+    const condutoresStorage = response ? JSON.parse(response) : [];
+    setcondutores(condutoresStorage);
   }
 
-  const exibirModal = () => setShowModalExcluirCondutores(true);
+  const showModal = () => setShowModalExcluircondutor(true);
 
-  const ocultarModal = () => setShowModalExcluirCondutores(false);
+  const hideModal = () => setShowModalExcluircondutor(false);
 
-  async function adicionarCondutor(condutor) {
-    let novaListaCondutores = condutores;
-    novaListaCondutores.push(condutor);
-    await AsyncStorage.setItem('condutores', JSON.stringify(novaListaCondutores));
-    setCondutores(novaListaCondutores);
+  async function adicionarcondutor(condutor) {
+    let novaListacondutores = condutores;
+    novaListacondutores.push(condutor);
+    await AsyncStorage.setItem('condutores', JSON.stringify(novaListacondutores));
+    setcondutores(novaListacondutores);
   }
 
-  async function editarCondutor(condutorAntigo, novosDados) {
-    console.log('CONDUTOR ANTIGO -> ', condutorAntigo);
-    console.log('NOVOS DADOS -> ', novosDados);
+  async function editarcondutor(condutorAntiga, novosDados) {
+    console.log('INSCRIÇÃO ANTIGA -> ', condutorAntiga);
+    console.log('DADOS NOVOS -> ', novosDados);
 
-    const novaListaCondutores = condutores.map((condutor) => {
-      if (condutor === condutorAntigo) {
+    const novaListacondutores = condutores.map((condutor) => {
+      if (condutor === condutorAntiga) {
         return novosDados;
       } else {
         return condutor;
       }
     });
 
-    await AsyncStorage.setItem('condutores', JSON.stringify(novaListaCondutores));
-    setCondutores(novaListaCondutores);
+    await AsyncStorage.setItem('condutores', JSON.stringify(novaListacondutores));
+    setcondutores(novaListacondutores);
   }
 
-  async function excluirCondutor(condutor) {
-    const novaListaCondutores = condutores.filter((c) => c !== condutor);
-    await AsyncStorage.setItem('condutores', JSON.stringify(novaListaCondutores));
-    setCondutores(novaListaCondutores);
+  async function excluircondutor(condutor) {
+    const novaListacondutores = condutores.filter((i) => i !== condutor);
+    await AsyncStorage.setItem('condutores', JSON.stringify(novaListacondutores));
+    setcondutores(novaListacondutores);
     Toast.show({
       type: 'success',
-      text1: 'Condutor excluído com sucesso!',
+      text1: 'Inscrição excluída com sucesso!',
     });
   }
 
-  function lidarComExcluirCondutor() {
-    excluirCondutor(condutorASerExcluido);
-    setCondutorASerExcluido(null);
-    ocultarModal();
+  function handleExcluircondutor() {
+    excluircondutor(condutorASerExcluida);
+    setcondutorASerExcluida(null);
+    hideModal();
   }
 
   return (
@@ -77,21 +77,21 @@ export default function ListaCondutoresAsyncStorage({ navigation, route }) {
           <Card mode='outlined' style={styles.card}>
             <Card.Content style={styles.cardContent}>
               <View style={{ flex: 1 }}>
-                <Text colorvariant='titleMedium' style={{ color: Colors.DEFAULT_WHITE}}>{item?.nome}</Text>
-                <Text variant='bodyLarge' style={{ color: Colors.DEFAULT_WHITE }}>CPF: {item?.Cpf}</Text>
-                <Text variant='bodyLarge' style={{ color: Colors.DEFAULT_WHITE }}>E-mail: {item?.Email} </Text>
-                <Text variant='bodyLarge' style={{ color: Colors.DEFAULT_WHITE }}>Senha: {item.Senha} </Text>
-                <Text variant='bodyLarge' style={{ color: Colors.DEFAULT_WHITE }}>Telefone: {item.Telefone} </Text>
+                <Text colorvariant='titleMedium' style={{ color: Colors.DEFAULT_WHITE}}>{item?.NomeSobrenome}</Text>
+                <Text variant='bodyLarge' style={{ color: Colors.DEFAULT_WHITE }}>DataNascimento: {item?.DataNascimento}</Text>
+                <Text variant='bodyLarge' style={{ color: Colors.DEFAULT_WHITE }}>Validade: {item?.Validade} </Text>
+                <Text variant='bodyLarge' style={{ color: Colors.DEFAULT_WHITE }}>NumeroRegistro: {item.NumeroRegistro} </Text>
+                <Text variant='bodyLarge' style={{ color: Colors.DEFAULT_WHITE }}>Nacionalidade: {item.Nacionalidade} </Text>
               </View>
             </Card.Content>
             <Card.Actions>
-              <Button onPress={() => navigation.push('FormCondutoresAsyncStorage', { acao: editarCondutor, inscricao: item })}  labelStyle={{ color: Colors.DARK_ONE }}>
+              <Button onPress={() => navigation.push('FormCondutoresAsyncStorage', { acao: editarcondutor, condutor: item })}  labelStyle={{ color: Colors.DARK_ONE }}>
                 Editar
               </Button>
               <Button
                 onPress={() => {
-                  setCondutorASerExcluido(item);
-                  exibirModal();
+                  setcondutorASerExcluida(item);
+                  showModal();
                 }}
                 style={{ backgroundColor: Colors.DARK_ONE }}
               >
@@ -107,19 +107,19 @@ export default function ListaCondutoresAsyncStorage({ navigation, route }) {
         icon='plus'
         style={styles.fab}
         color="white"
-        onPress={() => navigation.push('FormCondutoresAsyncStorage', { acao: adicionarCondutor })}
+        onPress={() => navigation.push('FormCondutoresAsyncStorage', { acao: adicionarcondutor })}
       />
 
-      {/* Modal Excluir Condutor */}
+      {/* Modal Excluir Inscrição */}
       <Portal>
-        <Dialog visible={showModalExcluirCondutores} onDismiss={ocultarModal}>
+        <Dialog visible={showModalExcluircondutor} onDismiss={hideModal}>
           <Dialog.Title>Atenção!</Dialog.Title>
           <Dialog.Content>
-            <Text variant='bodyMedium' style={{ color: Colors.WHITE }}>Tem certeza que deseja excluir este condutor?</Text>
+            <Text variant='bodyMedium' style={{ color: Colors.WHITE }}>Tem certeza que deseja excluir esta inscrição?</Text>
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={ocultarModal} style={{ color: Colors.WHITE }} labelStyle={{ color: 'black' }} >Voltar</Button>
-            <Button onPress={lidarComExcluirCondutor} style={{ color: Colors.WHITE }} labelStyle={{ color: 'black' }}>Tenho Certeza</Button>
+            <Button onPress={hideModal} style={{ color: Colors.WHITE }} labelStyle={{ color: 'black' }} >Voltar</Button>
+            <Button onPress={handleExcluircondutor} style={{ color: Colors.WHITE }} labelStyle={{ color: 'black' }}>Tenho Certeza</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>

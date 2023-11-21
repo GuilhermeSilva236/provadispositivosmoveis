@@ -1,4 +1,5 @@
 import Separador from "./Separador";
 import CategoriaMenuItem from "./CategoriaMenuItem";
+import StarRating from "./StarRating";
 
-export {Separador, CategoriaMenuItem};
+export {Separador, CategoriaMenuItem, StarRating};

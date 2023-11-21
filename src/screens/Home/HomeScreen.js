@@ -54,7 +54,7 @@ const HomeScreen = ({ navigation }) => {
             id: 5,
             image: require('../../../assets/images/loc.png'), // Substitua pelo caminho da imagem do quadrado 5
             text: 'Adicione a Localização',
-            screen:'Localização'
+            screen:'Feedback'
         },
         // Adicione mais objetos conforme necessário
     ];

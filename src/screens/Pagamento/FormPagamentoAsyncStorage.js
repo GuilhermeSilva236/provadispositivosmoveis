@@ -3,143 +3,163 @@ import { StyleSheet, View } from 'react-native';
 import { Button, Text, TextInput } from 'react-native-paper';
 import Toast from 'react-native-toast-message';
 import { Colors } from '../../renderizacao';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
 
 export default function FormPagamentoAsyncStorage({ navigation, route }) {
   const { acao, pagamento: pagamentoAntigo } = route.params;
 
   const [nome, setNome] = useState('');
-  const [Cpf, setCpf] = useState('');
-  const [Email, setEmail] = useState('');
-  const [Senha, setSenha] = useState('');
-  const [Telefone, setTelefone] = useState('');
   const [numeroCartao, setNumeroCartao] = useState('');
   const [dataValidade, setDataValidade] = useState('');
   const [cvv, setCVV] = useState('');
-
-  const [showMensagemErro, setShowMensagemErro] = useState(false);
 
   useEffect(() => {
     console.log('pagamento -> ', pagamentoAntigo);
 
     if (pagamentoAntigo) {
-      setNome(pagamentoAntigo.nome);
-      setCpf(pagamentoAntigo.Cpf);
-      setEmail(pagamentoAntigo.Email);
-      setSenha(pagamentoAntigo.Senha);
-      setTelefone(pagamentoAntigo.Telefone);
+      setNome(pagamentoAntigo.nome || '');
       setNumeroCartao(pagamentoAntigo.numeroCartao || '');
       setDataValidade(pagamentoAntigo.dataValidade || '');
       setCVV(pagamentoAntigo.cvv || '');
     }
-  }, []);
+  }, [pagamentoAntigo]);
 
-  function salvar() {
-    if (
-      nome === '' ||
-      Cpf === '' ||
-      Email === '' ||
-      Senha === '' ||
-      Telefone === '' ||
-      numeroCartao === '' ||
-      dataValidade === '' ||
-      cvv === ''
-    ) {
-      setShowMensagemErro(true);
-    } else {
-      setShowMensagemErro(false);
+  function salvar(values) {
+    const { nome, numeroCartao, dataValidade, cvv } = values;
 
-      const novoPagamento = {
-        nome,
-        Cpf,
-        Email,
-        Senha,
-        Telefone,
-        numeroCartao,
-        dataValidade,
-        cvv,
-      };
-
-      if (pagamentoAntigo) {
-        acao(pagamentoAntigo, novoPagamento);
-      } else {
-        acao(novoPagamento);
-      }
-
+    if (!nome || !numeroCartao || !dataValidade || !cvv) {
       Toast.show({
-        type: 'success',
-        text1: 'Pagamento salvo com sucesso!',
+        type: 'error',
+        text1: 'Preencha todos os campos!',
       });
-
-      navigation.goBack();
+      return; // Retorna sem fazer o salvamento se algum campo estiver vazio
     }
+
+    const novoPagamento = {
+      nome,
+      numeroCartao,
+      dataValidade,
+      cvv,
+    };
+
+    if (pagamentoAntigo) {
+      acao(pagamentoAntigo, novoPagamento);
+    } else {
+      acao(novoPagamento);
+    }
+
+    Toast.show({
+      type: 'success',
+      text1: 'Pagamento salvo com sucesso!',
+    });
+
+    navigation.goBack();
   }
+
+  const PagamentoValidador = Yup.object().shape({
+    nome: Yup.string().required('Campo obrigatório!'),
+    numeroCartao: Yup.string().required('Campo obrigatório!'),
+    dataValidade: Yup.string().required('Campo obrigatório!'),
+    cvv: Yup.string().required('Campo obrigatório!'),
+  });
 
   return (
     <View style={styles.container}>
-      <Text variant="titleLarge" style={styles.title}>
-        {pagamentoAntigo ? 'Editar Pagamento' : 'Adicionar Pagamento'}
-      </Text>
+      <Formik
+        initialValues={{
+          nome: pagamentoAntigo ? pagamentoAntigo.nome || '' : '',
+          numeroCartao: pagamentoAntigo ? pagamentoAntigo.numeroCartao || '' : '',
+          dataValidade: pagamentoAntigo ? pagamentoAntigo.dataValidade || '' : '',
+          cvv: pagamentoAntigo ? pagamentoAntigo.cvv || '' : '',
+        }}
+        validationSchema={PagamentoValidador}
+        onSubmit={(values) => salvar(values)}
+      >
+        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+          <>
+            <Text variant="titleLarge" style={styles.title}>
+              {pagamentoAntigo ? 'Editar Pagamento' : 'Adicionar Pagamento'}
+            </Text>
 
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={{ ...styles.input, underlineColor: 'black' }}
-          label={'Nome'}
-          mode='outlined'
-          value={nome}
-          onChangeText={(text) => setNome(text)}
-          onFocus={() => setShowMensagemErro(false)}
-          theme={{ colors: { primary: 'black', underlineColor: 'transparent' } }}
-        />
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={{ ...styles.input, underlineColor: 'black' }}
+                label={'Nome'}
+                mode='outlined'
+                onChangeText={handleChange('nome')}
+                onBlur={handleBlur('nome')}
+                theme={{ colors: { primary: 'black', underlineColor: 'transparent' } }}
+                value={values.nome}
+                error={errors.nome && touched.nome}
+              />
 
-        {/* ... Outros campos existentes ... */}
+              {errors.nome && touched.nome && (
+                <Text style={{ color: 'red', marginLeft: 10 }}>{errors.nome}</Text>
+              )}
 
-        <TextInput
-          style={{ ...styles.input, underlineColor: 'black' }}
-          label={'Número do Cartão'}
-          mode='outlined'
-          keyboardType='numeric'
-          value={numeroCartao}
-          onChangeText={(text) => setNumeroCartao(text)}
-          onFocus={() => setShowMensagemErro(false)}
-          theme={{ colors: { primary: 'black', underlineColor: 'transparent' } }}
-        />
+              <TextInput
+                style={{ ...styles.input, underlineColor: 'black' }}
+                label={'Número do Cartão'}
+                mode='outlined'
+                keyboardType='numeric'
+                onChangeText={handleChange('numeroCartao')}
+                onBlur={handleBlur('numeroCartao')}
+                theme={{ colors: { primary: 'black', underlineColor: 'transparent' } }}
+                value={values.numeroCartao}
+                error={errors.numeroCartao && touched.numeroCartao}
+              />
 
-        <TextInput
-          style={{ ...styles.input, underlineColor: 'black' }}
-          label={'Data de Validade'}
-          mode='outlined'
-          keyboardType='numeric'
-          value={dataValidade}
-          onChangeText={(text) => setDataValidade(text)}
-          onFocus={() => setShowMensagemErro(false)}
-          theme={{ colors: { primary: 'black', underlineColor: 'transparent' } }}
-        />
+              {errors.numeroCartao && touched.numeroCartao && (
+                <Text style={{ color: 'red', marginLeft: 10 }}>{errors.numeroCartao}</Text>
+              )}
 
-        <TextInput
-          style={{ ...styles.input, underlineColor: 'black' }}
-          label={'CVV'}
-          mode='outlined'
-          keyboardType='numeric'
-          value={cvv}
-          onChangeText={(text) => setCVV(text)}
-          onFocus={() => setShowMensagemErro(false)}
-          theme={{ colors: { primary: 'black', underlineColor: 'transparent' } }}
-        />
+              <TextInput
+                style={{ ...styles.input, underlineColor: 'black' }}
+                label={'Data de Validade (MM/AA)'}
+                mode='outlined'
+                keyboardType='default'
+                onChangeText={handleChange('dataValidade')}
+                onBlur={handleBlur('dataValidade')}
+                theme={{ colors: { primary: 'black', underlineColor: 'transparent' } }}
+                value={values.dataValidade}
+                error={errors.dataValidade && touched.dataValidade}
+              />
 
-        {showMensagemErro && (
-          <Text style={{ color: 'red', textAlign: 'center' }}>Preencha todos os campos!</Text>
+              {errors.dataValidade && touched.dataValidade && (
+                <Text style={{ color: 'red', marginLeft: 10 }}>{errors.dataValidade}</Text>
+              )}
+
+              <TextInput
+                style={{ ...styles.input, underlineColor: 'black' }}
+                label={'CVV'}
+                mode='outlined'
+                keyboardType='numeric'
+                onChangeText={handleChange('cvv')}
+                onBlur={handleBlur('cvv')}
+                theme={{ colors: { primary: 'black', underlineColor: 'transparent' } }}
+                value={values.cvv}
+                error={errors.cvv && touched.cvv}
+              />
+
+              {errors.cvv && touched.cvv && (
+                <Text style={{ color: 'red', marginLeft: 10 }}>{errors.cvv}</Text>
+              )}
+
+            </View>
+
+            <View style={styles.buttonContainer}>
+              <Button style={styles.button} mode='contained-tonal' onPress={() => navigation.goBack()} labelStyle={{ color: 'white' }}>
+                Voltar
+              </Button>
+
+              <Button style={styles.button} mode='contained' onPress={handleSubmit} >
+                Salvar
+              </Button>
+            </View>
+          </>
         )}
-      </View>
-
-      <View style={styles.buttonContainer}>
-        <Button style={styles.button} mode='contained-tonal' onPress={() => navigation.goBack()} labelStyle={{ color: 'white' }}>
-          Voltar
-        </Button>
-
-        <Button style={styles.button} mode='contained' onPress={salvar} >
-          Salvar
-        </Button>
-      </View>
+      </Formik>
     </View>
   );
 }
