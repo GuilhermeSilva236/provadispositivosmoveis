@@ -1,47 +1,106 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Button, Text } from 'react-native-paper';
+import { Button, Text, TextInput } from 'react-native-paper';
 import { StarRating } from '../../components';
 import { Colors } from '../../renderizacao';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
 
-export default function FormFeedbackAsyncStorage({ navigation }) {
+const InscrevaValidador = Yup.object().shape({
+  NomeSobrenome: Yup.string().required('Por favor, insira o nome e sobrenome'),
+  // Adicione validação para outros campos, se necessário
+});
+
+export default function FormFeedbackAsyncStorage({ route, navigation }) {
   const [appFeedback, setAppFeedback] = useState(0);
-  const [condutoresFeedback, setCondutoresFeedback] = useState(0);
+  const [feedbackesFeedback, setFeedbackesFeedback] = useState(0);
   const [localizacaoFeedback, setLocalizacaoFeedback] = useState(0);
+  const [initialValues, setInitialValues] = useState({
+    NomeSobrenome: '',
+  });
 
-  const enviarFeedback = () => {
-    // Lógica para enviar feedback
-    console.log('Feedback do aplicativo:', appFeedback);
-    console.log('Feedback dos condutores:', condutoresFeedback);
-    console.log('Feedback da localização:', localizacaoFeedback);
-    // ...
+  useEffect(() => {
+    if (route.params?.acao === 'editar') {
+      const { inscricao } = route.params;
+      setInitialValues({
+        NomeSobrenome: inscricao?.NomeSobrenome || '',
+      });
+      setAppFeedback(inscricao?.AppFeedback || 0);
+      setFeedbackesFeedback(inscricao?.FeedbackesFeedback || 0);
+      setLocalizacaoFeedback(inscricao?.LocalizacaoFeedback || 0);
+    }
+  }, [route.params]);
 
-    // Navega de volta para a tela anterior após o envio do feedback
-    navigation.goBack();
+  const enviarFeedback = async (values) => {
+    try {
+      const existingFeedback = await AsyncStorage.getItem('feedback');
+      let feedbackList = existingFeedback ? JSON.parse(existingFeedback) : [];
+      
+      const newFeedback = {
+        NomeSobrenome: values.NomeSobrenome,
+        AppFeedback: appFeedback,
+        FeedbackesFeedback: feedbackesFeedback,
+        LocalizacaoFeedback: localizacaoFeedback,
+      };
+  
+      if (!Array.isArray(feedbackList)) {
+        feedbackList = [];
+      }
+  
+      feedbackList.push(newFeedback);
+  
+      await AsyncStorage.setItem('feedback', JSON.stringify(feedbackList));
+      navigation.goBack();
+    } catch (error) {
+      console.error('Erro ao enviar feedback:', error);
+    }
   };
-
+  
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Deixe seu feedback:</Text>
-
-      {/* Mostrando apenas as estrelas */}
-      <Text style={styles.label}>Feedback do aplicativo:</Text>
-      <StarRating classificacao={appFeedback} onChange={setAppFeedback} />
-
-      <Text style={styles.label}>Feedback dos condutores:</Text>
-      <StarRating classificacao={condutoresFeedback} onChange={setCondutoresFeedback} />
-
-      <Text style={styles.label}>Feedback da localização:</Text>
-      <StarRating classificacao={localizacaoFeedback} onChange={setLocalizacaoFeedback} />
-
-      <Button
-        mode="contained"
-        style={styles.button}
-        labelStyle={{ color: 'white' }}
-        onPress={enviarFeedback}
+      <Formik
+        initialValues={initialValues}
+        validationSchema={InscrevaValidador}
+        onSubmit={(values) => {
+          enviarFeedback(values);
+        }}
       >
-        Enviar Feedback
-      </Button>
+        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+          <>
+            <Text style={styles.title}>Deixe seu feedback:</Text>
+
+            <TextInput
+              style={{ ...styles.input }}
+              label={'Nome e Sobrenome'}
+              mode='outlined'
+              onChangeText={handleChange('NomeSobrenome')}
+              onBlur={handleBlur('NomeSobrenome')}
+              theme={{ colors: { primary: 'black' } }}
+              value={values.NomeSobrenome}
+              error={errors.NomeSobrenome && touched.NomeSobrenome}
+            />
+
+            {/* Mostrar estrelas para diferentes tipos de feedback */}
+            <Text style={styles.label}>Feedback do aplicativo:</Text>
+            <StarRating classificacao={appFeedback} onChange={setAppFeedback} />
+
+            <Text style={styles.label}>Feedback dos feedbackes:</Text>
+            <StarRating classificacao={feedbackesFeedback} onChange={setFeedbackesFeedback} />
+
+            <Text style={styles.label}>Feedback da localização:</Text>
+            <StarRating classificacao={localizacaoFeedback} onChange={setLocalizacaoFeedback} />
+
+            <Button
+              mode="contained"
+              style={styles.button}
+              onPress={handleSubmit}
+            >
+              Enviar Feedback
+            </Button>
+          </>
+        )}
+      </Formik>
     </View>
   );
 }
@@ -65,6 +124,6 @@ const styles = StyleSheet.create({
   button: {
     marginTop: 20,
     width: '100%',
-    backgroundColor: Colors.DARK_ONE
+    backgroundColor: Colors.DARK_ONE,
   },
 });
