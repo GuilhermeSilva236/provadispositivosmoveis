@@ -10,15 +10,15 @@ const HomeScreen = ({ navigation }) => {
     const carouselImages = [
         {
             id: 1,
-            image: require('../../../assets/images/carrosel1.png'), // Substitua pelo caminho da imagem do carrossel
+            image: require('../../../assets/images/uber3.webp.png'), // Substitua pelo caminho da imagem do carrossel
         },
         {
             id: 2,
-            image: require('../../../assets/images/img1.png'), // Substitua pelo caminho da imagem do carrossel
+            image: require('../../../assets/images/gif1.gif'), // Substitua pelo caminho da imagem do carrossel
         },
         {
             id: 3,
-            image: require('../../../assets/images/img1.png'), // Substitua pelo caminho da imagem do carrossel
+            image: require('../../../assets/images/REFFF_novo-1024x476.webp'), // Substitua pelo caminho da imagem do carrossel
         },
         
         // Adicione mais objetos conforme necessário
@@ -53,7 +53,7 @@ const HomeScreen = ({ navigation }) => {
         {
             id: 5,
             image: require('../../../assets/images/loc.png'), // Substitua pelo caminho da imagem do quadrado 5
-            text: 'Adicione a Localização',
+            text: 'Deixe seu Feedback',
             screen:'Feedback'
         },
         // Adicione mais objetos conforme necessário

@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Platform } from 'react-native';
 import { Button, Text, TextInput } from 'react-native-paper';
 import Toast from 'react-native-toast-message';
-import { Colors } from '../../renderizacao';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import { Picker } from '@react-native-picker/picker';
+import { TextInputMask } from 'react-native-masked-text';
+import { Colors } from '../../renderizacao';
 
 export default function FormCondutoresAsyncStorage({ navigation, route }) {
   const { acao, condutor: condutorAntiga } = route.params;
@@ -28,7 +30,7 @@ export default function FormCondutoresAsyncStorage({ navigation, route }) {
   function salvar(values) {
     const { NomeSobrenome, DataNascimento, Validade, NumeroRegistro, Nacionalidade } = values;
 
-    if (!NomeSobrenome || !DataNascimento || !Validade || !NumeroRegistro || !Nacionalidade) {
+    if (!NomeSobrenome || !DataNascimento || !Validade || !NumeroRegistro || Nacionalidade === 'Selecione') {
       Toast.show({
         type: 'error',
         text1: 'Preencha todos os campos!',
@@ -61,25 +63,23 @@ export default function FormCondutoresAsyncStorage({ navigation, route }) {
   const InscrevaValidador = Yup.object().shape({
     NomeSobrenome: Yup.string().required('Campo obrigatório!'),
     DataNascimento: Yup.string().required('Campo obrigatório!'),
-    Validade: Yup.string().required('Campo obrigatório!'), // Corrigido para campo de Validade
+    Validade: Yup.string().required('Campo obrigatório!'),
     NumeroRegistro: Yup.string().required('Campo obrigatório!'),
-    Nacionalidade: Yup.string().required('Campo obrigatório!'),
+    Nacionalidade: Yup.string().notOneOf(['Selecione'], 'Selecione uma nacionalidade válida').required('Campo obrigatório!'),
   });
 
-  const showDatePicker = async (setFieldValue) => {
-    try {
-      const { action, year, month, day } = await DatePickerAndroid.open({
-        date: new Date(),
-      });
-      if (action !== DatePickerAndroid.dismissedAction) {
-        const selectedDate = new Date(year, month, day);
-        setDataNascimento(selectedDate.toLocaleDateString());
-        setFieldValue('DataNascimento', selectedDate.toLocaleDateString());
-      }
-    } catch ({ message }) {
-      console.warn('Cannot open date picker', message);
-    }
-  };
+  const nacionalidades = [
+    'Selecione',
+    'Português/a',
+    'Espanhol/a',
+    'Francês/a',
+    'Italiano/a',
+    'Alemão/alemã',
+    'Inglês/inglesa',
+    'Americano/americana',
+    'Canadense',
+    'Mexicano/mexicana',
+  ];
 
   return (
     <View style={styles.container}>
@@ -89,12 +89,12 @@ export default function FormCondutoresAsyncStorage({ navigation, route }) {
           DataNascimento: condutorAntiga ? condutorAntiga.DataNascimento || '' : '',
           Validade: condutorAntiga ? condutorAntiga.Validade || '' : '',
           NumeroRegistro: condutorAntiga ? condutorAntiga.NumeroRegistro || '' : '',
-          Nacionalidade: condutorAntiga ? condutorAntiga.Nacionalidade || '' : '',
+          Nacionalidade: condutorAntiga ? condutorAntiga.Nacionalidade || 'Selecione' : 'Selecione',
         }}
         validationSchema={InscrevaValidador}
         onSubmit={(values) => salvar(values)}
       >
-        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+        {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue }) => (
           <>
             <Text variant="titleLarge" style={styles.title}>
               {condutorAntiga ? 'Editar CNH' : 'Adicionar CNH'}
@@ -115,30 +115,58 @@ export default function FormCondutoresAsyncStorage({ navigation, route }) {
                 <Text style={{ color: 'red', marginLeft: 10 }}>{errors.NomeSobrenome}</Text>
               )}
 
-              <TextInput
-                style={{ ...styles.input, underlineColor: 'black' }}
+              <TextInputMask
+                style={{ 
+                  ...styles.input,
+                  height: 50,
+                  borderWidth: 1,
+                  borderColor: touched.DataNascimento && errors.DataNascimento ? 'red' : Colors.DARK_THREE, // Cor da borda vermelha
+                  borderRadius: 5,
+                  paddingHorizontal: 10,
+                  backgroundColor: 'white',
+                  marginVertical: 8,
+                 }}
                 label={'Data de Nascimento'}
                 mode='outlined'
                 keyboardType='numeric'
+                type={'datetime'}
+                options={{
+                  format: 'DD/MM/YYYY',
+                }}
                 onChangeText={handleChange('DataNascimento')}
                 onBlur={handleBlur('DataNascimento')}
                 theme={{ colors: { primary: 'black', underlineColor: 'transparent' } }}
                 value={values.DataNascimento}
                 error={errors.DataNascimento && touched.DataNascimento}
+                placeholder="Data de Nascimento: DD/MM/AAAA"
               />
               {errors.DataNascimento && touched.DataNascimento && (
                 <Text style={{ color: 'red', marginLeft: 10 }}>{errors.DataNascimento}</Text>
               )}
 
-              <TextInput
-                style={{ ...styles.input, underlineColor: 'black' }}
+              <TextInputMask
+                style={{ 
+                  ...styles.input,
+                  height: 50,
+                  borderWidth: 1,
+                  borderColor: touched.Validade && errors.Validade ? 'red' : Colors.DARK_THREE, // Cor da borda vermelha
+                  borderRadius: 5,
+                  paddingHorizontal: 10,
+                  backgroundColor: 'white',
+                  marginVertical: 8,
+                 }}
                 label={'Validade'}
                 mode='outlined'
+                type={'datetime'}
+                options={{
+                  format: 'MM/YYYY',
+                }}
                 onChangeText={handleChange('Validade')}
                 onBlur={handleBlur('Validade')}
                 theme={{ colors: { primary: 'black', underlineColor: 'transparent' } }}
                 value={values.Validade}
                 error={errors.Validade && touched.Validade}
+                placeholder="Validade: MM/AAAA"
               />
               {errors.Validade && touched.Validade && (
                 <Text style={{ color: 'red', marginLeft: 10 }}>{errors.Validade}</Text>
@@ -158,17 +186,19 @@ export default function FormCondutoresAsyncStorage({ navigation, route }) {
                 <Text style={{ color: 'red', marginLeft: 10 }}>{errors.NumeroRegistro}</Text>
               )}
 
-              <TextInput
-                style={{ ...styles.input, underlineColor: 'black' }}
-                label={'Nacionalidade'}
-                mode='outlined'
-                keyboardType='numeric'
-                onChangeText={handleChange('Nacionalidade')}
-                onBlur={handleBlur('Nacionalidade')}
-                theme={{ colors: { primary: 'black', underlineColor: 'transparent' } }}
-                value={values.Nacionalidade}
-                error={errors.Nacionalidade && touched.Nacionalidade}
-              />
+              <View style={{ ...styles.input, marginBottom: 10 }}>
+                <Text>Nacionalidade</Text>
+                <Picker
+                  style={{ ...styles.picker, ...Platform.select({ android: { marginLeft: -8 } }) }}
+                  selectedValue={values.Nacionalidade}
+                  onValueChange={(itemValue) => setFieldValue('Nacionalidade', itemValue)}
+                  mode="dropdown"
+                >
+                  {nacionalidades.map((nacionalidade, index) => (
+                    <Picker.Item key={index} label={nacionalidade} value={nacionalidade} />
+                  ))}
+                </Picker>
+              </View>
               {errors.Nacionalidade && touched.Nacionalidade && (
                 <Text style={{ color: 'red', marginLeft: 10 }}>{errors.Nacionalidade}</Text>
               )}
@@ -206,6 +236,11 @@ const styles = StyleSheet.create({
   input: {
     margin: 10,
   },
+  picker: {
+    height: 40,
+    borderColor: 'black',
+    borderBottomWidth: 1,
+  },
   buttonContainer: {
     flexDirection: 'row',
     width: '90%',
@@ -214,6 +249,6 @@ const styles = StyleSheet.create({
   },
   button: {
     flex: 1,
-    backgroundColor: Colors.DARK_ONE,
+    backgroundColor: 'black', // Defina a cor desejada para os botões
   },
 });

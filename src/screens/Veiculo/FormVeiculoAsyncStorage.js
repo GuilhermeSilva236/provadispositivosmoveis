@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Platform } from 'react-native';
 import { Button, Text, TextInput } from 'react-native-paper';
 import Toast from 'react-native-toast-message';
 import { Colors } from '../../renderizacao';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import { Picker } from '@react-native-picker/picker';
+import { TextInputMask } from 'react-native-masked-text';
 
 export default function FormVeiculoAsyncStorage({ navigation, route }) {
   const { acao, veiculo: veiculoAntigo } = route.params;
@@ -30,7 +32,7 @@ export default function FormVeiculoAsyncStorage({ navigation, route }) {
   function salvar(values) {
     const { nome, placa, modelo, ano, cor } = values;
 
-    if (!nome || !placa || !modelo || !ano || !cor) {
+    if (!nome || !placa || modelo === 'Selecionar' || !ano || cor === 'Selecionar') {
       Toast.show({
         type: 'error',
         text1: 'Preencha todos os campos!',
@@ -63,25 +65,28 @@ export default function FormVeiculoAsyncStorage({ navigation, route }) {
   const VeiculoValidador = Yup.object().shape({
     nome: Yup.string().required('Campo obrigatório!'),
     placa: Yup.string().required('Campo obrigatório!'),
-    modelo: Yup.string().required('Campo obrigatório!'),
+    modelo: Yup.string().notOneOf(['Selecionar'], 'Selecione um modelo válido').required('Campo obrigatório!'),
     ano: Yup.string().required('Campo obrigatório!'),
-    cor: Yup.string().required('Campo obrigatório!'),
+    cor: Yup.string().notOneOf(['Selecionar'], 'Selecione uma cor válida').required('Campo obrigatório!'),
   });
+
+  const modelos = ['Selecionar', 'Carro', 'Moto']; // Substitua esses valores pelos seus modelos reais
+  const cores = ['Selecionar', 'Vermelho', 'Azul', 'Verde', 'Preto', 'Branco', 'Prata', 'Outra']; // Adicione as cores desejadas
 
   return (
     <View style={styles.container}>
       <Formik
         initialValues={{
-          nome: veiculoAntigo ? veiculoAntigo.nome || '' : '', // Checa se há veiculoAntigo e define valores iniciais
+          nome: veiculoAntigo ? veiculoAntigo.nome || '' : '',
           placa: veiculoAntigo ? veiculoAntigo.placa || '' : '',
-          modelo: veiculoAntigo ? veiculoAntigo.modelo || '' : '',
+          modelo: veiculoAntigo ? veiculoAntigo.modelo || 'Selecionar' : 'Selecionar',
           ano: veiculoAntigo ? veiculoAntigo.ano || '' : '',
-          cor: veiculoAntigo ? veiculoAntigo.cor || '' : '',
+          cor: veiculoAntigo ? veiculoAntigo.cor || 'Selecionar' : 'Selecionar',
         }}
         validationSchema={VeiculoValidador}
         onSubmit={(values) => salvar(values)}
       >
-        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+        {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue }) => (
           <>
             <Text variant="titleLarge" style={styles.title}>
               {veiculoAntigo ? 'Editar Veículo' : 'Adicionar Veículo'}
@@ -102,61 +107,91 @@ export default function FormVeiculoAsyncStorage({ navigation, route }) {
                 <Text style={{ color: 'red', marginLeft: 10 }}>{errors.nome}</Text>
               )}
 
-              <TextInput
-                style={{ ...styles.input, underlineColor: 'black' }}
-                label={'Placa'}
+              <TextInputMask
+                style={{
+                  ...styles.input,
+                  height: 50,
+                  borderWidth: 1,
+                  borderColor: errors.placa && touched.placa ? 'red' : Colors.DARK_THREE, // Alteração na cor da borda
+                  borderRadius: 5,
+                  paddingHorizontal: 10,
+                  backgroundColor: 'white',
+                }}
+                placeholder="Placa" // Adicionando o texto "Placa" dentro do campo
                 mode='outlined'
                 onChangeText={handleChange('placa')}
                 onBlur={handleBlur('placa')}
                 theme={{ colors: { primary: 'black', underlineColor: 'transparent' } }}
                 value={values.placa}
                 error={errors.placa && touched.placa}
+                type={'custom'}
+                options={{
+                  mask: 'AAA-9999', // Máscara de placa de carro
+                }}
               />
               {errors.placa && touched.placa && (
                 <Text style={{ color: 'red', marginLeft: 10 }}>{errors.placa}</Text>
               )}
 
-              <TextInput
-                style={{ ...styles.input, underlineColor: 'black' }}
-                label={'Modelo'}
-                mode='outlined'
-                onChangeText={handleChange('modelo')}
-                onBlur={handleBlur('modelo')}
-                theme={{ colors: { primary: 'black', underlineColor: 'transparent' } }}
-                value={values.modelo}
-                error={errors.modelo && touched.modelo}
-              />
+
+              <View style={{ ...styles.input, marginBottom: 10 }}>
+                <Text>Modelo</Text>
+                <Picker
+                  style={{ ...styles.picker, ...Platform.select({ android: { marginLeft: -8 } }) }}
+                  selectedValue={values.modelo}
+                  onValueChange={(itemValue) => setFieldValue('modelo', itemValue)}
+                  mode="dropdown"
+                >
+                  {modelos.map((modelo, index) => (
+                    <Picker.Item key={index} label={modelo} value={modelo} />
+                  ))}
+                </Picker>
+              </View>
               {errors.modelo && touched.modelo && (
                 <Text style={{ color: 'red', marginLeft: 10 }}>{errors.modelo}</Text>
               )}
 
-              <TextInput
-                style={{ ...styles.input, underlineColor: 'black' }}
-                label={'Ano'}
-                mode='outlined'
+              <View style={{ ...styles.input, marginBottom: 10 }}>
+                <Text>Cor</Text>
+                <Picker
+                  style={{ ...styles.picker, ...Platform.select({ android: { marginLeft: -8 } }) }}
+                  selectedValue={values.cor}
+                  onValueChange={(itemValue) => setFieldValue('cor', itemValue)}
+                  mode="dropdown"
+                >
+                  {cores.map((cor, index) => (
+                    <Picker.Item key={index} label={cor} value={cor} />
+                  ))}
+                </Picker>
+              </View>
+              {errors.cor && touched.cor && (
+                <Text style={{ color: 'red', marginLeft: 10 }}>{errors.cor}</Text>
+              )}
+
+              <TextInputMask
+                style={{
+                  ...styles.input,
+                  height: 50,
+                  borderWidth: 1,
+                  borderColor: errors.ano && touched.ano ? 'red' : Colors.DARK_THREE, // Alteração na cor da borda
+                  borderRadius: 5,
+                  paddingHorizontal: 10,
+                  backgroundColor: 'white',
+                }}
+                placeholder="Ano" // Texto dentro do campo
                 keyboardType='numeric'
                 onChangeText={handleChange('ano')}
                 onBlur={handleBlur('ano')}
                 theme={{ colors: { primary: 'black', underlineColor: 'transparent' } }}
                 value={values.ano}
                 error={errors.ano && touched.ano}
+                type={'custom'}
+                options={{
+                  mask: '9999', // Máscara para o ano (AAAA)
+                }}
               />
               {errors.ano && touched.ano && (
                 <Text style={{ color: 'red', marginLeft: 10 }}>{errors.ano}</Text>
-              )}
-
-              <TextInput
-                style={{ ...styles.input, underlineColor: 'black' }}
-                label={'Cor'}
-                mode='outlined'
-                onChangeText={handleChange('cor')}
-                onBlur={handleBlur('cor')}
-                theme={{ colors: { primary: 'black', underlineColor: 'transparent' } }}
-                value={values.cor}
-                error={errors.cor && touched.cor}
-              />
-              {errors.cor && touched.cor && (
-                <Text style={{ color: 'red', marginLeft: 10 }}>{errors.cor}</Text>
               )}
             </View>
 
@@ -192,6 +227,11 @@ const styles = StyleSheet.create({
   },
   input: {
     margin: 10,
+  },
+  picker: {
+    height: 40,
+    borderColor: 'black',
+    borderBottomWidth: 1,
   },
   buttonContainer: {
     flexDirection: 'row',

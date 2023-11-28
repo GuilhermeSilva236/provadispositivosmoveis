@@ -5,6 +5,8 @@ import Toast from 'react-native-toast-message';
 import { Colors } from '../../renderizacao';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import { Ionicons } from '@expo/vector-icons';
+import { TextInputMask } from 'react-native-masked-text'; // Importe o TextInputMask
 
 export default function FormInscrevaAsyncStorage({ navigation, route }) {
   const { acao, inscricao: inscricaoAntiga } = route.params;
@@ -57,10 +59,16 @@ export default function FormInscrevaAsyncStorage({ navigation, route }) {
 
     navigation.goBack();
   }
+  const [showPassword, setShowPassword] = useState(false);
 
   const InscrevaValidador = Yup.object().shape({
-    nome: Yup.string().required('Campo obrigatório!'),
-    Cpf: Yup.string().required('Campo obrigatório!'),
+    nome: Yup.string()
+      .required('Campo obrigatório!')
+      .min(3, 'Mínimo de 3 letras')
+      .max(20, 'Máximo de 20 letras'),
+    Cpf: Yup.string()
+      .required('Campo obrigatório!')
+      .matches(/^\d{3}\.\d{3}\.\d{3}\-\d{2}$/, 'CPF inválido. Use o formato XXX.XXX.XXX-XX'),
     Email: Yup.string().email('Formato de e-mail inválido').required('Campo obrigatório!'),
     Senha: Yup.string().required('Campo obrigatório!'),
     Telefone: Yup.string().required('Campo obrigatório!'),
@@ -87,10 +95,17 @@ export default function FormInscrevaAsyncStorage({ navigation, route }) {
 
             <View style={styles.inputContainer}>
               <TextInput
-                style={{ ...styles.input, underlineColor: 'black' }}
+                style={{
+                  ...styles.input,
+                  underlineColor: 'black'
+                }}
                 label={'Nome'}
                 mode='outlined'
-                onChangeText={handleChange('nome')}
+                onChangeText={(text) => {
+                  const formattedName =
+                    text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+                  handleChange('nome')(formattedName);
+                }}
                 onBlur={handleBlur('nome')}
                 theme={{ colors: { primary: 'black', underlineColor: 'transparent' } }}
                 value={values.nome}
@@ -100,21 +115,36 @@ export default function FormInscrevaAsyncStorage({ navigation, route }) {
                 <Text style={{ color: 'red', marginLeft: 10 }}>{errors.nome}</Text>
               )}
 
-              <TextInput
-                style={{ ...styles.input, underlineColor: 'black' }}
-                label={'CPF'}
-                mode='outlined'
-                keyboardType='numeric'
+              <TextInputMask
+                style={{
+                  ...styles.input,
+                  height: 50,
+                  borderWidth: 1,
+                  borderColor: touched.Cpf && errors.Cpf ? 'red' : Colors.DARK_THREE, // Alteração na cor da borda
+                  borderRadius: 5,
+                  paddingHorizontal: 10,
+                  backgroundColor: 'white',
+                  marginVertical: 8,
+                }}
+                type={'cpf'}
+                placeholder={'CPF'}
+                placeholderTextColor={'#888'}
+                options={{
+                  maskType: 'CPF',
+                  withDDD: true,
+                  dddMask: '(99) ',
+                }}
                 onChangeText={handleChange('Cpf')}
                 onBlur={handleBlur('Cpf')}
-                theme={{ colors: { primary: 'black', underlineColor: 'transparent' } }}
                 value={values.Cpf}
-                error={errors.Cpf && touched.Cpf}
+                onFocus={() => {
+                  // Lógica para animação quando o campo CPF estiver em foco
+                  console.log('Campo CPF em foco');
+                }}
               />
               {errors.Cpf && touched.Cpf && (
                 <Text style={{ color: 'red', marginLeft: 10 }}>{errors.Cpf}</Text>
               )}
-
               <TextInput
                 style={{ ...styles.input, underlineColor: 'black' }}
                 label={'Email'}
@@ -129,30 +159,56 @@ export default function FormInscrevaAsyncStorage({ navigation, route }) {
                 <Text style={{ color: 'red', marginLeft: 10 }}>{errors.Email}</Text>
               )}
 
-              <TextInput
-                style={{ ...styles.input, underlineColor: 'black' }}
-                label={'Senha'}
-                mode='outlined'
-                onChangeText={handleChange('Senha')}
-                onBlur={handleBlur('Senha')}
-                theme={{ colors: { primary: 'black', underlineColor: 'transparent' } }}
-                value={values.Senha}
-                error={errors.Senha && touched.Senha}
-              />
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <TextInput
+                  style={{ ...styles.input, flex: 1, underlineColor: 'black' }}
+                  label={'Senha'}
+                  mode='outlined'
+                  onChangeText={handleChange('Senha')}
+                  onBlur={handleBlur('Senha')}
+                  theme={{ colors: { primary: 'black', underlineColor: 'transparent' } }}
+                  value={values.Senha}
+                  error={errors.Senha && touched.Senha}
+                  secureTextEntry={!showPassword}
+                />
+                <Ionicons
+                  name={showPassword ? 'eye' : 'eye-off'}
+                  size={24}
+                  color="black"
+                  onPress={() => setShowPassword(!showPassword)}
+                />
+              </View>
               {errors.Senha && touched.Senha && (
                 <Text style={{ color: 'red', marginLeft: 10 }}>{errors.Senha}</Text>
               )}
 
-              <TextInput
-                style={{ ...styles.input, underlineColor: 'black' }}
+
+              <TextInputMask
+                style={{ 
+                  ...styles.input,
+                  height: 50,
+                  borderWidth: 1,
+                  borderColor: touched.Cpf && errors.Cpf ? 'red' : Colors.DARK_THREE, // Alteração na cor da borda
+                  borderRadius: 5,
+                  paddingHorizontal: 10,
+                  backgroundColor: 'white',
+                  marginVertical: 8,
+                 }}
                 label={'Telefone'}
                 mode='outlined'
                 keyboardType='numeric'
+                type={'cel-phone'} // Define o tipo de máscara para número de celular
+                options={{
+                  maskType: 'BRL', // Define o tipo de máscara para o Brasil
+                  withDDD: true,
+                  dddMask: '(99) ',
+                }}
                 onChangeText={handleChange('Telefone')}
                 onBlur={handleBlur('Telefone')}
                 theme={{ colors: { primary: 'black', underlineColor: 'transparent' } }}
                 value={values.Telefone}
                 error={errors.Telefone && touched.Telefone}
+                placeholder="Telefone" // Adiciona o texto "Telefone" dentro do campo
               />
               {errors.Telefone && touched.Telefone && (
                 <Text style={{ color: 'red', marginLeft: 10 }}>{errors.Telefone}</Text>
@@ -170,7 +226,7 @@ export default function FormInscrevaAsyncStorage({ navigation, route }) {
           </>
         )}
       </Formik>
-    </View>
+    </View >
   );
 }
 
@@ -189,7 +245,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   input: {
-    margin: 10,
+    marginVertical: 8,
+    backgroundColor: 'white',
+  },
+  errorText: {
+    color: 'red',
+    marginLeft: 10,
   },
   buttonContainer: {
     flexDirection: 'row',

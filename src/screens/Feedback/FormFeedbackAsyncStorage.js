@@ -9,7 +9,6 @@ import * as Yup from 'yup';
 
 const InscrevaValidador = Yup.object().shape({
   NomeSobrenome: Yup.string().required('Por favor, insira o nome e sobrenome'),
-  // Adicione validação para outros campos, se necessário
 });
 
 export default function FormFeedbackAsyncStorage({ route, navigation }) {
@@ -19,6 +18,7 @@ export default function FormFeedbackAsyncStorage({ route, navigation }) {
   const [initialValues, setInitialValues] = useState({
     NomeSobrenome: '',
   });
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     if (route.params?.acao === 'editar') {
@@ -34,6 +34,12 @@ export default function FormFeedbackAsyncStorage({ route, navigation }) {
 
   const enviarFeedback = async (values) => {
     try {
+      if (appFeedback === 0 || feedbackesFeedback === 0 || localizacaoFeedback === 0 || !values.NomeSobrenome) {
+        // Se algum campo não foi preenchido, exibe uma mensagem de atenção e não envia o feedback
+        setErrorMessage('Atenção: Preencha todos os campos antes de enviar o feedback.');
+        return;
+      }
+
       const existingFeedback = await AsyncStorage.getItem('feedback');
       let feedbackList = existingFeedback ? JSON.parse(existingFeedback) : [];
       
@@ -47,10 +53,18 @@ export default function FormFeedbackAsyncStorage({ route, navigation }) {
       if (!Array.isArray(feedbackList)) {
         feedbackList = [];
       }
-  
-      feedbackList.push(newFeedback);
-  
-      await AsyncStorage.setItem('feedback', JSON.stringify(feedbackList));
+
+      const { acao, inscricao, handleSalvarEdicao } = route.params;
+
+      if (acao === 'editar') {
+        // Se estiver editando, chame a função handleSalvarEdicao
+        handleSalvarEdicao(newFeedback);
+      } else {
+        // Se estiver adicionando, salve o novo feedback
+        feedbackList.push(newFeedback);
+        await AsyncStorage.setItem('feedback', JSON.stringify(feedbackList));
+      }
+
       navigation.goBack();
     } catch (error) {
       console.error('Erro ao enviar feedback:', error);
@@ -71,7 +85,7 @@ export default function FormFeedbackAsyncStorage({ route, navigation }) {
             <Text style={styles.title}>Deixe seu feedback:</Text>
 
             <TextInput
-              style={{ ...styles.input }}
+              style={{ ...styles.input, marginBottom: 10 }}
               label={'Nome e Sobrenome'}
               mode='outlined'
               onChangeText={handleChange('NomeSobrenome')}
@@ -80,6 +94,9 @@ export default function FormFeedbackAsyncStorage({ route, navigation }) {
               value={values.NomeSobrenome}
               error={errors.NomeSobrenome && touched.NomeSobrenome}
             />
+            {errors.NomeSobrenome && touched.NomeSobrenome && (
+              <Text style={styles.errorText}>{errors.NomeSobrenome}</Text>
+            )}
 
             {/* Mostrar estrelas para diferentes tipos de feedback */}
             <Text style={styles.label}>Feedback do aplicativo:</Text>
@@ -90,6 +107,10 @@ export default function FormFeedbackAsyncStorage({ route, navigation }) {
 
             <Text style={styles.label}>Feedback da localização:</Text>
             <StarRating classificacao={localizacaoFeedback} onChange={setLocalizacaoFeedback} />
+
+            {errorMessage ? (
+              <Text style={styles.attentionText}>{errorMessage}</Text>
+            ) : null}
 
             <Button
               mode="contained"
@@ -125,5 +146,19 @@ const styles = StyleSheet.create({
     marginTop: 20,
     width: '100%',
     backgroundColor: Colors.DARK_ONE,
+  },
+  input: {
+    width: '100%',
+  },
+  errorText: {
+    color: 'red',
+    marginLeft: 10,
+    marginBottom: 5,
+  },
+  attentionText: {
+    color: 'red',
+    fontSize: 16,
+    marginTop: 10,
+    textAlign: 'center',
   },
 });

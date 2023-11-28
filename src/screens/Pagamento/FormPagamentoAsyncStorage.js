@@ -5,6 +5,7 @@ import Toast from 'react-native-toast-message';
 import { Colors } from '../../renderizacao';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import { TextInputMask } from 'react-native-masked-text';
 
 export default function FormPagamentoAsyncStorage({ navigation, route }) {
   const { acao, pagamento: pagamentoAntigo } = route.params;
@@ -98,50 +99,86 @@ export default function FormPagamentoAsyncStorage({ navigation, route }) {
                 <Text style={{ color: 'red', marginLeft: 10 }}>{errors.nome}</Text>
               )}
 
-              <TextInput
-                style={{ ...styles.input, underlineColor: 'black' }}
-                label={'Número do Cartão'}
+              {/* Campo Número do Cartão */}
+              <TextInputMask
+                style={{
+                  ...styles.input,
+                  borderBottomColor: errors.numeroCartao && touched.numeroCartao ? 'red' : Colors.DARK_THREE,
+                  height: 50,
+                  borderWidth: 1,
+                  borderColor: errors.ano && touched.ano ? 'red' : Colors.DARK_THREE, // Alteração na cor da borda
+                  borderRadius: 5,
+                  paddingHorizontal: 10,
+                  backgroundColor: 'white',
+                }}
+                placeholder="Número do Cartão"
                 mode='outlined'
-                keyboardType='numeric'
                 onChangeText={handleChange('numeroCartao')}
                 onBlur={handleBlur('numeroCartao')}
                 theme={{ colors: { primary: 'black', underlineColor: 'transparent' } }}
                 value={values.numeroCartao}
                 error={errors.numeroCartao && touched.numeroCartao}
+                type={'custom'}
+                options={{
+                  mask: '9999 9999 9999 9999', // Ajuste a máscara conforme necessário
+                }}
               />
-
               {errors.numeroCartao && touched.numeroCartao && (
                 <Text style={{ color: 'red', marginLeft: 10 }}>{errors.numeroCartao}</Text>
               )}
 
-              <TextInput
-                style={{ ...styles.input, underlineColor: 'black' }}
-                label={'Data de Validade (MM/AA)'}
+              {/* Campo Data de Validade */}
+              <TextInputMask
+                style={{
+                  ...styles.input,
+                  borderBottomColor: errors.dataValidade && touched.dataValidade ? 'red' : Colors.DARK_THREE,
+                  height: 50,
+                  borderWidth: 1,
+                  borderColor: errors.ano && touched.ano ? 'red' : Colors.DARK_THREE, // Alteração na cor da borda
+                  borderRadius: 5,
+                  paddingHorizontal: 10,
+                  backgroundColor: 'white',
+                }}
+                placeholder="Data de Validade (MM/AA)"
                 mode='outlined'
-                keyboardType='default'
                 onChangeText={handleChange('dataValidade')}
                 onBlur={handleBlur('dataValidade')}
                 theme={{ colors: { primary: 'black', underlineColor: 'transparent' } }}
                 value={values.dataValidade}
                 error={errors.dataValidade && touched.dataValidade}
+                type={'custom'}
+                options={{
+                  mask: '99/99', // Ajuste a máscara conforme necessário
+                }}
               />
-
               {errors.dataValidade && touched.dataValidade && (
                 <Text style={{ color: 'red', marginLeft: 10 }}>{errors.dataValidade}</Text>
               )}
 
-              <TextInput
-                style={{ ...styles.input, underlineColor: 'black' }}
-                label={'CVV'}
+              {/* Campo CVV */}
+              <TextInputMask
+                style={{
+                  ...styles.input,
+                  borderBottomColor: errors.cvv && touched.cvv ? 'red' : Colors.DARK_THREE,
+                  height: 50,
+                  borderWidth: 1,
+                  borderColor: errors.ano && touched.ano ? 'red' : Colors.DARK_THREE, // Alteração na cor da borda
+                  borderRadius: 5,
+                  paddingHorizontal: 10,
+                  backgroundColor: 'white',
+                }}
+                placeholder="CVV"
                 mode='outlined'
-                keyboardType='numeric'
                 onChangeText={handleChange('cvv')}
                 onBlur={handleBlur('cvv')}
                 theme={{ colors: { primary: 'black', underlineColor: 'transparent' } }}
                 value={values.cvv}
                 error={errors.cvv && touched.cvv}
+                type={'custom'}
+                options={{
+                  mask: '999', // Ajuste a máscara conforme necessário
+                }}
               />
-
               {errors.cvv && touched.cvv && (
                 <Text style={{ color: 'red', marginLeft: 10 }}>{errors.cvv}</Text>
               )}

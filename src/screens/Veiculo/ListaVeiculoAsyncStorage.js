@@ -80,8 +80,8 @@ export default function ListaVeiculoAsyncStorage({ navigation, route }) {
                 <Text colorvariant='titleMedium' style={{ color: Colors.DEFAULT_WHITE}}>{item?.nome}</Text>
                 <Text variant='bodyLarge' style={{ color: Colors.DEFAULT_WHITE }}>Placa: {item?.placa}</Text>
                 <Text variant='bodyLarge' style={{ color: Colors.DEFAULT_WHITE }}>Modelo: {item?.modelo} </Text>
-                <Text variant='bodyLarge' style={{ color: Colors.DEFAULT_WHITE }}>Ano: {item?.ano} </Text>
                 <Text variant='bodyLarge' style={{ color: Colors.DEFAULT_WHITE }}>Cor: {item.cor} </Text>
+                <Text variant='bodyLarge' style={{ color: Colors.DEFAULT_WHITE }}>Ano: {item?.ano} </Text>
               </View>
             </Card.Content>
             <Card.Actions>
