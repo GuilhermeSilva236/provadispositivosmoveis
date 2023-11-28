@@ -116,7 +116,7 @@ export default function FormCondutoresAsyncStorage({ navigation, route }) {
               )}
 
               <TextInputMask
-                style={{ 
+                style={{
                   ...styles.input,
                   height: 50,
                   borderWidth: 1,
@@ -125,7 +125,7 @@ export default function FormCondutoresAsyncStorage({ navigation, route }) {
                   paddingHorizontal: 10,
                   backgroundColor: 'white',
                   marginVertical: 8,
-                 }}
+                }}
                 label={'Data de Nascimento'}
                 mode='outlined'
                 keyboardType='numeric'
@@ -145,7 +145,7 @@ export default function FormCondutoresAsyncStorage({ navigation, route }) {
               )}
 
               <TextInputMask
-                style={{ 
+                style={{
                   ...styles.input,
                   height: 50,
                   borderWidth: 1,
@@ -154,7 +154,7 @@ export default function FormCondutoresAsyncStorage({ navigation, route }) {
                   paddingHorizontal: 10,
                   backgroundColor: 'white',
                   marginVertical: 8,
-                 }}
+                }}
                 label={'Validade'}
                 mode='outlined'
                 type={'datetime'}
@@ -172,19 +172,33 @@ export default function FormCondutoresAsyncStorage({ navigation, route }) {
                 <Text style={{ color: 'red', marginLeft: 10 }}>{errors.Validade}</Text>
               )}
 
-              <TextInput
-                style={{ ...styles.input, underlineColor: 'black' }}
-                label={'Numero de Registro'}
-                mode='outlined'
-                onChangeText={handleChange('NumeroRegistro')}
-                onBlur={handleBlur('NumeroRegistro')}
-                theme={{ colors: { primary: 'black', underlineColor: 'transparent' } }}
-                value={values.NumeroRegistro}
-                error={errors.NumeroRegistro && touched.NumeroRegistro}
-              />
-              {errors.NumeroRegistro && touched.NumeroRegistro && (
-                <Text style={{ color: 'red', marginLeft: 10 }}>{errors.NumeroRegistro}</Text>
-              )}
+<TextInputMask
+              style={{ 
+                ...styles.input,
+                height: 50,
+                borderWidth: 1,
+                borderColor: touched.NumeroRegistro && errors.NumeroRegistro ? 'red' : Colors.DARK_THREE,
+                borderRadius: 5,
+                paddingHorizontal: 10,
+                backgroundColor: 'white',
+                marginVertical: 8,
+              }}
+              label={'Número de Registro'}
+              mode='outlined'
+              type={'custom'}
+              options={{
+                mask: '99999999999', // Máscara para 11 dígitos numéricos
+              }}
+              onChangeText={handleChange('NumeroRegistro')}
+              onBlur={handleBlur('NumeroRegistro')}
+              theme={{ colors: { primary: 'black', underlineColor: 'transparent' } }}
+              value={values.NumeroRegistro}
+              error={errors.NumeroRegistro && touched.NumeroRegistro}
+              placeholder="Número de Registro" // Adicionar o texto desejado aqui
+            />
+            {errors.NumeroRegistro && touched.NumeroRegistro && (
+              <Text style={{ color: 'red', marginLeft: 10 }}>{errors.NumeroRegistro}</Text>
+            )}
 
               <View style={{ ...styles.input, marginBottom: 10 }}>
                 <Text>Nacionalidade</Text>

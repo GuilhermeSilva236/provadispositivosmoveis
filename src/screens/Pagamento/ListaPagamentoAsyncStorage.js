@@ -26,6 +26,9 @@ export default function ListaPagamentoAsyncStorage({ navigation, route }) {
     novaListaPagamento.push(novoPagamento);
     await AsyncStorage.setItem('pagamento', JSON.stringify(novaListaPagamento));
     setPagamento(novaListaPagamento);
+
+    // Recarrega os pagamentos após adicionar um novo pagamento
+    await loadPagamento();
   }
 
   async function editarPagamento(pagamentoAntigo, novosDados) {

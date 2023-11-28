@@ -103,13 +103,12 @@ export default function FormPagamentoAsyncStorage({ navigation, route }) {
               <TextInputMask
                 style={{
                   ...styles.input,
-                  borderBottomColor: errors.numeroCartao && touched.numeroCartao ? 'red' : Colors.DARK_THREE,
-                  height: 50,
                   borderWidth: 1,
-                  borderColor: errors.ano && touched.ano ? 'red' : Colors.DARK_THREE, // Alteração na cor da borda
+                  borderColor: errors.numeroCartao && touched.numeroCartao ? 'red' : Colors.DARK_THREE,
                   borderRadius: 5,
                   paddingHorizontal: 10,
                   backgroundColor: 'white',
+                  height: 50,
                 }}
                 placeholder="Número do Cartão"
                 mode='outlined'
@@ -120,7 +119,7 @@ export default function FormPagamentoAsyncStorage({ navigation, route }) {
                 error={errors.numeroCartao && touched.numeroCartao}
                 type={'custom'}
                 options={{
-                  mask: '9999 9999 9999 9999', // Ajuste a máscara conforme necessário
+                  mask: '9999 9999 9999 9999',
                 }}
               />
               {errors.numeroCartao && touched.numeroCartao && (
@@ -131,13 +130,12 @@ export default function FormPagamentoAsyncStorage({ navigation, route }) {
               <TextInputMask
                 style={{
                   ...styles.input,
-                  borderBottomColor: errors.dataValidade && touched.dataValidade ? 'red' : Colors.DARK_THREE,
-                  height: 50,
                   borderWidth: 1,
-                  borderColor: errors.ano && touched.ano ? 'red' : Colors.DARK_THREE, // Alteração na cor da borda
+                  borderColor: errors.dataValidade && touched.dataValidade ? 'red' : Colors.DARK_THREE,
                   borderRadius: 5,
                   paddingHorizontal: 10,
                   backgroundColor: 'white',
+                  height: 50,
                 }}
                 placeholder="Data de Validade (MM/AA)"
                 mode='outlined'
@@ -148,7 +146,7 @@ export default function FormPagamentoAsyncStorage({ navigation, route }) {
                 error={errors.dataValidade && touched.dataValidade}
                 type={'custom'}
                 options={{
-                  mask: '99/99', // Ajuste a máscara conforme necessário
+                  mask: '99/99',
                 }}
               />
               {errors.dataValidade && touched.dataValidade && (
@@ -159,13 +157,12 @@ export default function FormPagamentoAsyncStorage({ navigation, route }) {
               <TextInputMask
                 style={{
                   ...styles.input,
-                  borderBottomColor: errors.cvv && touched.cvv ? 'red' : Colors.DARK_THREE,
-                  height: 50,
                   borderWidth: 1,
-                  borderColor: errors.ano && touched.ano ? 'red' : Colors.DARK_THREE, // Alteração na cor da borda
+                  borderColor: errors.cvv && touched.cvv ? 'red' : Colors.DARK_THREE,
                   borderRadius: 5,
                   paddingHorizontal: 10,
                   backgroundColor: 'white',
+                  height: 50,
                 }}
                 placeholder="CVV"
                 mode='outlined'
@@ -176,7 +173,7 @@ export default function FormPagamentoAsyncStorage({ navigation, route }) {
                 error={errors.cvv && touched.cvv}
                 type={'custom'}
                 options={{
-                  mask: '999', // Ajuste a máscara conforme necessário
+                  mask: '999',
                 }}
               />
               {errors.cvv && touched.cvv && (

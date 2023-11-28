@@ -19,6 +19,7 @@ export default function ListaInscrevaAsyncStorage({ navigation, route }) {
     console.log("🚀 ~ file: ListaInscrevaAsyncStorage.js:21 ~ loadInscricoes ~ response:", response);
     const inscricoesStorage = response ? JSON.parse(response) : [];
     setInscricoes(inscricoesStorage);
+    setLoading(false); // Quando os dados forem carregados, o indicador de carregamento será desativado
   }
 
   const showModal = () => setShowModalExcluirInscricao(true);

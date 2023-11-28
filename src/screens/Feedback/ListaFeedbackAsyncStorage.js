@@ -3,15 +3,19 @@ import { FlatList, StyleSheet, View } from 'react-native';
 import { Button, Card, Dialog, FAB, Portal, Text } from 'react-native-paper';
 import { Colors } from '../../renderizacao';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native'; // Importando useFocusEffect
 
 export default function ListaFeedbackAsyncStorage({ navigation }) {
   const [feedback, setFeedback] = useState([]);
   const [showModalExcluirFeedback, setShowModalExcluirFeedback] = useState(false);
   const [feedbackASerExcluido, setFeedbackASerExcluido] = useState(null);
 
-  useEffect(() => {
-    loadFeedback();
-  }, []);
+  // Usando useFocusEffect para carregar os feedbacks quando a tela recebe foco
+  useFocusEffect(
+    React.useCallback(() => {
+      loadFeedback();
+    }, [])
+  );
 
   const loadFeedback = async () => {
     try {
@@ -44,10 +48,15 @@ export default function ListaFeedbackAsyncStorage({ navigation }) {
   };
 
   const handleSalvarEdicao = (editedFeedback) => {
-    const updatedFeedback = feedback.map(item => (item === feedbackASerExcluido ? editedFeedback : item));
+    const updatedFeedback = feedback.map(item => {
+      if (item === feedbackASerExcluido) {
+        return { ...editedFeedback, NomeSobrenome: item.NomeSobrenome };
+      }
+      return item;
+    });
     setFeedback(updatedFeedback);
   };
-
+  
   const renderItem = ({ item }) => (
     <Card mode='outlined' style={styles.card}>
       <Card.Content style={styles.cardContent}>
@@ -58,17 +67,21 @@ export default function ListaFeedbackAsyncStorage({ navigation }) {
       </Card.Content>
       <Card.Actions>
         <Button
-          onPress={() => navigation.push('FormFeedbackAsyncStorage', {
-            acao: 'editar',
-            inscricao: item,
-            handleSalvarEdicao: handleSalvarEdicao,
-          })}
+          onPress={() => {
+            console.log('Item selecionado para editar:', item); // Adiciona console.log para verificar o item selecionado
+            navigation.push('FormFeedbackAsyncStorage', {
+              acao: 'editar',
+              inscricao: item,
+              handleSalvarEdicao: handleSalvarEdicao,
+            });
+          }}
           labelStyle={{ color: Colors.DARK_ONE }}
         >
           Editar
         </Button>
         <Button
           onPress={() => {
+            console.log('Item selecionado para excluir:', item); // Adiciona console.log para verificar o item selecionado
             setFeedbackASerExcluido(item);
             showModal();
           }}

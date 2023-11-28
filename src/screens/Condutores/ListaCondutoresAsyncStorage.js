@@ -6,61 +6,52 @@ import Toast from 'react-native-toast-message';
 import { Colors } from '../../renderizacao';
 
 export default function ListaCondutoresAsyncStorage({ navigation, route }) {
-  const [condutores, setcondutores] = useState([]);
-  const [showModalExcluircondutor, setShowModalExcluircondutor] = useState(false);
-  const [condutorASerExcluida, setcondutorASerExcluida] = useState(null);
+  const [condutores, setCondutores] = useState([]);
+  const [showModalExcluirCondutor, setShowModalExcluirCondutor] = useState(false);
+  const [condutorASerExcluido, setCondutorASerExcluido] = useState(null);
 
   useEffect(() => {
-    loadcondutores();
+    loadCondutores();
   }, []);
 
-  async function loadcondutores() {
+  async function loadCondutores() {
     const response = await AsyncStorage.getItem('condutores');
-    console.log("🚀 ~ file: ListaCondutoresAsyncStorage.js:21 ~ loadcondutores ~ response:", response);
     const condutoresStorage = response ? JSON.parse(response) : [];
-    setcondutores(condutoresStorage);
+    setCondutores(condutoresStorage);
   }
 
-  const showModal = () => setShowModalExcluircondutor(true);
+  const showModal = () => setShowModalExcluirCondutor(true);
+  const hideModal = () => setShowModalExcluirCondutor(false);
 
-  const hideModal = () => setShowModalExcluircondutor(false);
-
-  async function adicionarcondutor(condutor) {
-    let novaListacondutores = condutores;
-    novaListacondutores.push(condutor);
-    await AsyncStorage.setItem('condutores', JSON.stringify(novaListacondutores));
-    setcondutores(novaListacondutores);
+  async function adicionarCondutor(condutor) {
+    let novaListaCondutores = [...condutores, condutor];
+    await AsyncStorage.setItem('condutores', JSON.stringify(novaListaCondutores));
+    setCondutores(novaListaCondutores);
   }
 
-  async function editarcondutor(condutorAntiga, novosDados) {
-    console.log('INSCRIÇÃO ANTIGA -> ', condutorAntiga);
-    console.log('DADOS NOVOS -> ', novosDados);
+  async function editarCondutor(condutorAntiga, novosDados) {
+    const novaListaCondutores = condutores.map((condutor) =>
+      condutor === condutorAntiga ? novosDados : condutor
+    );
 
-    const novaListacondutores = condutores.map((condutor) => {
-      if (condutor === condutorAntiga) {
-        return novosDados;
-      } else {
-        return condutor;
-      }
-    });
-
-    await AsyncStorage.setItem('condutores', JSON.stringify(novaListacondutores));
-    setcondutores(novaListacondutores);
+    await AsyncStorage.setItem('condutores', JSON.stringify(novaListaCondutores));
+    setCondutores(novaListaCondutores);
   }
 
-  async function excluircondutor(condutor) {
-    const novaListacondutores = condutores.filter((i) => i !== condutor);
-    await AsyncStorage.setItem('condutores', JSON.stringify(novaListacondutores));
-    setcondutores(novaListacondutores);
+  async function excluirCondutor(condutor) {
+    const novaListaCondutores = condutores.filter((c) => c !== condutor);
+    await AsyncStorage.setItem('condutores', JSON.stringify(novaListaCondutores));
+    setCondutores(novaListaCondutores);
+
     Toast.show({
       type: 'success',
-      text1: 'Inscrição excluída com sucesso!',
+      text1: 'Condutor excluído com sucesso!',
     });
   }
 
-  function handleExcluircondutor() {
-    excluircondutor(condutorASerExcluida);
-    setcondutorASerExcluida(null);
+  function handleExcluirCondutor() {
+    excluirCondutor(condutorASerExcluido);
+    setCondutorASerExcluido(null);
     hideModal();
   }
 
@@ -77,7 +68,7 @@ export default function ListaCondutoresAsyncStorage({ navigation, route }) {
           <Card mode='outlined' style={styles.card}>
             <Card.Content style={styles.cardContent}>
               <View style={{ flex: 1 }}>
-                <Text colorvariant='titleMedium' style={{ color: Colors.DEFAULT_WHITE}}>{item?.NomeSobrenome}</Text>
+                <Text colorvariant='titleMedium' style={{ color: Colors.DEFAULT_WHITE }}>{item?.NomeSobrenome}</Text>
                 <Text variant='bodyLarge' style={{ color: Colors.DEFAULT_WHITE }}>DataNascimento: {item?.DataNascimento}</Text>
                 <Text variant='bodyLarge' style={{ color: Colors.DEFAULT_WHITE }}>Validade: {item?.Validade} </Text>
                 <Text variant='bodyLarge' style={{ color: Colors.DEFAULT_WHITE }}>NumeroRegistro: {item.NumeroRegistro} </Text>
@@ -85,12 +76,12 @@ export default function ListaCondutoresAsyncStorage({ navigation, route }) {
               </View>
             </Card.Content>
             <Card.Actions>
-              <Button onPress={() => navigation.push('FormCondutoresAsyncStorage', { acao: editarcondutor, condutor: item })}  labelStyle={{ color: Colors.DARK_ONE }}>
+              <Button onPress={() => navigation.push('FormCondutoresAsyncStorage', { acao: editarCondutor, condutor: item })}  labelStyle={{ color: Colors.DARK_ONE }}>
                 Editar
               </Button>
               <Button
                 onPress={() => {
-                  setcondutorASerExcluida(item);
+                  setCondutorASerExcluido(item);
                   showModal();
                 }}
                 style={{ backgroundColor: Colors.DARK_ONE }}
@@ -107,19 +98,19 @@ export default function ListaCondutoresAsyncStorage({ navigation, route }) {
         icon='plus'
         style={styles.fab}
         color="white"
-        onPress={() => navigation.push('FormCondutoresAsyncStorage', { acao: adicionarcondutor })}
+        onPress={() => navigation.push('FormCondutoresAsyncStorage', { acao: adicionarCondutor })}
       />
 
-      {/* Modal Excluir Inscrição */}
+      {/* Modal Excluir Condutor */}
       <Portal>
-        <Dialog visible={showModalExcluircondutor} onDismiss={hideModal}>
+        <Dialog visible={showModalExcluirCondutor} onDismiss={hideModal}>
           <Dialog.Title>Atenção!</Dialog.Title>
           <Dialog.Content>
-            <Text variant='bodyMedium' style={{ color: Colors.WHITE }}>Tem certeza que deseja excluir esta inscrição?</Text>
+            <Text variant='bodyMedium' style={{ color: Colors.WHITE }}>Tem certeza que deseja excluir este condutor?</Text>
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={hideModal} style={{ color: Colors.WHITE }} labelStyle={{ color: 'black' }} >Voltar</Button>
-            <Button onPress={handleExcluircondutor} style={{ color: Colors.WHITE }} labelStyle={{ color: 'black' }}>Tenho Certeza</Button>
+            <Button onPress={handleExcluirCondutor} style={{ color: Colors.WHITE }} labelStyle={{ color: 'black' }}>Tenho Certeza</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>

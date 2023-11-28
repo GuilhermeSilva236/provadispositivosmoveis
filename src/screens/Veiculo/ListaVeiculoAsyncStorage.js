@@ -30,6 +30,9 @@ export default function ListaVeiculoAsyncStorage({ navigation, route }) {
     novaListaVeiculos.push(veiculo);
     await AsyncStorage.setItem('veiculos', JSON.stringify(novaListaVeiculos));
     setVeiculos(novaListaVeiculos);
+
+    // Recarrega os veículos após adicionar um novo veículo
+    await loadVeiculos();
   }
 
   async function editarVeiculo(veiculoAntigo, novosDados) {

@@ -15,41 +15,38 @@ export default function FormFeedbackAsyncStorage({ route, navigation }) {
   const [appFeedback, setAppFeedback] = useState(0);
   const [feedbackesFeedback, setFeedbackesFeedback] = useState(0);
   const [localizacaoFeedback, setLocalizacaoFeedback] = useState(0);
-  const [initialValues, setInitialValues] = useState({
-    NomeSobrenome: '',
-  });
+  const [initialValues, setInitialValues] = useState({ NomeSobrenome: '' });
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     if (route.params?.acao === 'editar') {
       const { inscricao } = route.params;
       setInitialValues({
-        NomeSobrenome: inscricao?.NomeSobrenome || '',
+        NomeSobrenome: inscricao?.NomeSobrenome || '', // Define o valor inicial do campo NomeSobrenome
       });
       setAppFeedback(inscricao?.AppFeedback || 0);
       setFeedbackesFeedback(inscricao?.FeedbackesFeedback || 0);
       setLocalizacaoFeedback(inscricao?.LocalizacaoFeedback || 0);
     }
-  }, [route.params]);
+  }, [route.params])
 
   const enviarFeedback = async (values) => {
     try {
       if (appFeedback === 0 || feedbackesFeedback === 0 || localizacaoFeedback === 0 || !values.NomeSobrenome) {
-        // Se algum campo não foi preenchido, exibe uma mensagem de atenção e não envia o feedback
         setErrorMessage('Atenção: Preencha todos os campos antes de enviar o feedback.');
         return;
       }
 
       const existingFeedback = await AsyncStorage.getItem('feedback');
       let feedbackList = existingFeedback ? JSON.parse(existingFeedback) : [];
-      
+
       const newFeedback = {
         NomeSobrenome: values.NomeSobrenome,
         AppFeedback: appFeedback,
         FeedbackesFeedback: feedbackesFeedback,
         LocalizacaoFeedback: localizacaoFeedback,
       };
-  
+
       if (!Array.isArray(feedbackList)) {
         feedbackList = [];
       }
@@ -57,10 +54,13 @@ export default function FormFeedbackAsyncStorage({ route, navigation }) {
       const { acao, inscricao, handleSalvarEdicao } = route.params;
 
       if (acao === 'editar') {
-        // Se estiver editando, chame a função handleSalvarEdicao
-        handleSalvarEdicao(newFeedback);
+        const index = feedbackList.findIndex(item => item.NomeSobrenome === initialValues.NomeSobrenome);
+        if (index !== -1) {
+          feedbackList[index] = { ...feedbackList[index], ...newFeedback };
+          await AsyncStorage.setItem('feedback', JSON.stringify(feedbackList));
+          handleSalvarEdicao(newFeedback);
+        }
       } else {
-        // Se estiver adicionando, salve o novo feedback
         feedbackList.push(newFeedback);
         await AsyncStorage.setItem('feedback', JSON.stringify(feedbackList));
       }
@@ -70,7 +70,7 @@ export default function FormFeedbackAsyncStorage({ route, navigation }) {
       console.error('Erro ao enviar feedback:', error);
     }
   };
-  
+
   return (
     <View style={styles.container}>
       <Formik
@@ -80,7 +80,7 @@ export default function FormFeedbackAsyncStorage({ route, navigation }) {
           enviarFeedback(values);
         }}
       >
-        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+        {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue }) => (
           <>
             <Text style={styles.title}>Deixe seu feedback:</Text>
 
@@ -98,15 +98,14 @@ export default function FormFeedbackAsyncStorage({ route, navigation }) {
               <Text style={styles.errorText}>{errors.NomeSobrenome}</Text>
             )}
 
-            {/* Mostrar estrelas para diferentes tipos de feedback */}
             <Text style={styles.label}>Feedback do aplicativo:</Text>
-            <StarRating classificacao={appFeedback} onChange={setAppFeedback} />
+            <StarRating classificacao={appFeedback} onChange={value => setAppFeedback(value)} value={appFeedback} />
 
             <Text style={styles.label}>Feedback dos feedbackes:</Text>
-            <StarRating classificacao={feedbackesFeedback} onChange={setFeedbackesFeedback} />
+            <StarRating classificacao={feedbackesFeedback} onChange={value => setFeedbackesFeedback(value)} value={feedbackesFeedback} />
 
             <Text style={styles.label}>Feedback da localização:</Text>
-            <StarRating classificacao={localizacaoFeedback} onChange={setLocalizacaoFeedback} />
+            <StarRating classificacao={localizacaoFeedback} onChange={value => setLocalizacaoFeedback(value)} value={localizacaoFeedback} />
 
             {errorMessage ? (
               <Text style={styles.attentionText}>{errorMessage}</Text>
@@ -117,7 +116,7 @@ export default function FormFeedbackAsyncStorage({ route, navigation }) {
               style={styles.button}
               onPress={handleSubmit}
             >
-              Enviar Feedback
+              {route.params?.acao === 'editar' ? 'Salvar Edição' : 'Enviar Feedback'}
             </Button>
           </>
         )}
